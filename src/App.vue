@@ -1,25 +1,138 @@
 <template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
+    <div id="app">
+        <home></home>
     </div>
-    <router-view/>
-  </div>
 </template>
 <script>
 
+
+    // import md5 from "js-md5";
+    import Qs from 'qs'
+    import Home from "./views/Home";
+
     export default {
-        name: 'app',
-        methods:{
-            
+        components: {
+            Home
+        },
+        data() {
+            return {
+                isShowHome: false,
+                isShowLogin: false,
+                isShowSign: false
+            }
+        },
+        methods: {
+
+        },
+        created() {
+
+            //添加一个路由守卫
+            this.$router.beforeEach((to, from, next) => {
+                this.$Loading.start();
+
+                next();
+            });
+
+            this.$router.afterEach(() => {
+                this.$Loading.finish();
+                window.scrollTo(0, 0);
+            });
+
+            // 设置默认的 根url
+            this.$api.defaults.baseURL = this.$store.state.config.baseURL;
+
+            // 设置默认的 提交方式
+            this.$api.defaults.paramsSerializer = (params) => {
+                let q = Qs.stringify(params, {arrayFormat: 'brackets'});
+                // params.sign = md5(q);
+                // return Qs.stringify(params, {arrayFormat: 'brackets'})
+                return q;
+            };
+            // 设置默认的 提交方式是json字符串
+            this.$api.defaults.transformRequest = [(data) => {
+                if (data) {
+                    return Qs.stringify(data, {arrayFormat: 'brackets'});
+
+                }
+                return '';
+            }];
+            let msg;
+            // 添加一个请求拦截器
+            this.$api.interceptors.request.use((config) => {
+                msg = this.$Message.loading({
+                    content: '加载中...',
+                    duration: 0
+                });
+                return config;
+
+            }, function (error) {
+                msg();
+
+                return Promise.reject(error);
+            });
+
+            // 添加一个响应拦截器
+            this.$api.interceptors.response.use((response) => {
+                msg();
+                return response.data;
+
+            }, (error) => {
+                msg();
+
+                let txt = '';
+                if (error.response) {
+                    // 请求已发出，但服务器响应的状态码不在 2xx 范围内
+                    txt = error.response.data.msg;
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    txt = error.message;
+                }
+                this.$Message.warning(txt);
+
+                return Promise.reject(error);
+            });
+        },
+        mounted() {
+
+
         }
+
     }
 </script>
-<style lang="less">
-#app {
+
+<style >
 
 
-}
+
+
+    .tip {
+        color: #999999;
+        font-size: 12px;
+    }
+
+    .sub-title {
+        color: #666666;
+        font-size: 15px;
+    }
+
+    .cubeic-right {
+        color: #3c763d;
+    }
+
+    .cubeic-wrong {
+        color: #a94442;
+    }
+
+    .confirm-content {
+        margin: 10px;
+    }
+
+    .no-more {
+        margin: 50px;
+        text-align: center;
+        border-bottom: solid 1px #eeeeee;
+        color: #999999;
+
+    }
 
 </style>

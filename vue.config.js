@@ -2,6 +2,7 @@ module.exports = {
     publicPath: '',
     productionSourceMap: false,
     outputDir: 'dist',
+
     devServer: {
         proxy: {
             '/api': {
@@ -13,11 +14,14 @@ module.exports = {
         // ,disableHostCheck: true
 
     },
+
     css: {
         loaderOptions: {
             less: {
                 javascriptEnabled: true
             }
         }
-    }
+    },
+
+    lintOnSave: false
 };
