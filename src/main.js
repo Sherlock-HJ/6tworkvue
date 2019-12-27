@@ -4,6 +4,8 @@ import router from './router'
 import store from './store'
 import ViewUI from 'view-design';
 import './theme/index.less';
+import lib from './lib';
+Vue.use(lib);
 
 Vue.use(ViewUI);
 

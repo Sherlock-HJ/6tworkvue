@@ -9,7 +9,7 @@
     // @ is an alias to /src
 
     export default {
-        name: 'Home',
+        name: 'home',
 
         methods:{
             login(){
@@ -21,8 +21,8 @@
                 });
             }
         },
-        mounted(){
-            alert('dfd')
+        created(){
+            alert('dfd123');
 
             this.login();
         }
