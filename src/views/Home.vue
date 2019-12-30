@@ -1,6 +1,7 @@
 <template>
     <div class="home">
-        <img alt="Vue logo" src="../assets/logo.png">
+       <a-d></a-d>
+
 
     </div>
 </template>
@@ -8,23 +9,32 @@
 <script>
     // @ is an alias to /src
 
+    import AD from "./AD";
     export default {
         name: 'home',
+        components: {AD},
+        data() {
+            return {
+                ci: 0
+            }
+        },
+        methods: {
 
-        methods:{
-            login(){
-                let params = {r:'Wap/Login/Login'};
-                let  json={"username": "zxw", "wapcode": "", "password": "2e1f17104fbb36b97b96229daeb4251c"};
+            checkSite() {
+                if (this.ci > 3) return;
+                this.ci++;
 
-                this.$api.post('/api',json,{params}).then(resp=>{
-                    console.log(resp);
+                let params = {r: 'Wap/Menu/checkSite', siteid: 1};
+                this.$api.get('', {params}).then(() => {
+
+                    this.$Notice.success({title: '西陆 站点选择成功！'});
+
                 });
             }
         },
-        created(){
-            alert('dfd123');
+        created() {
 
-            this.login();
+            this.checkSite();
         }
     }
 </script>

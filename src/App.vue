@@ -5,8 +5,6 @@
 </template>
 <script>
 
-
-    // import md5 from "js-md5";
     import Qs from 'qs'
     import Home from "./views/Home";
 
@@ -22,14 +20,26 @@
             }
         },
         methods: {
+            login() {
+                let params = {r: 'Wap/Login/Login'};
+                let json = {
+                    username: "zxw",
+                    wapcode: "",
+                    password: "2e1f17104fbb36b97b96229daeb4251c"
+                };
 
+                this.$api.post('', json, {params}).then(() => {
+
+                    this.$Notice.success({title: '登录成功!'});
+
+                });
+            }
         },
-        created() {
+        beforeCreate() {
 
             //添加一个路由守卫
             this.$router.beforeEach((to, from, next) => {
                 this.$Loading.start();
-
                 next();
             });
 
@@ -51,33 +61,42 @@
             // 设置默认的 提交方式是json字符串
             this.$api.defaults.transformRequest = [(data) => {
                 if (data) {
-                    return Qs.stringify(data, {arrayFormat: 'brackets'});
+                    return JSON.stringify(data);
 
                 }
                 return '';
             }];
-            let msg;
+
             // 添加一个请求拦截器
             this.$api.interceptors.request.use((config) => {
-                msg = this.$Message.loading({
-                    content: '加载中...',
-                    duration: 0
-                });
+                this.$Loading.start();
+
                 return config;
 
-            }, function (error) {
-                msg();
+            }, (error) => {
+                this.$Loading.finish();
 
                 return Promise.reject(error);
             });
 
             // 添加一个响应拦截器
             this.$api.interceptors.response.use((response) => {
-                msg();
-                return response.data;
+                this.$Loading.finish();
+
+                if (response.data && response.data.ret === 200) {
+                    return response.data.data;
+                } else {
+                    const msg1 = this.$Message.warning(response.data.msg);
+
+                    const error = new Error(response.data.ret + ':' + response.data.msg);
+                    error.msg = msg1;
+                    error.data = response.data;
+                    return Promise.reject(error);
+
+                }
 
             }, (error) => {
-                msg();
+                this.$Loading.finish();
 
                 let txt = '';
                 if (error.response) {
@@ -92,6 +111,20 @@
                 return Promise.reject(error);
             });
         },
+        created() {
+            // 添加一个响应拦截器
+            this.$api.interceptors.response.use((response) => {
+                        return response;
+
+                }, (error) => {
+                    if (error.data && error.data.ret === 401) {
+                        this.login();
+
+                    }
+                    return Promise.reject(error);
+                }
+            );
+        },
         mounted() {
 
 
@@ -100,9 +133,7 @@
     }
 </script>
 
-<style >
-
-
+<style>
 
 
     .tip {
