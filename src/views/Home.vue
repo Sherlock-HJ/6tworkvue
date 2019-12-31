@@ -2,7 +2,7 @@
     <div class="home">
        <a-d></a-d>
 
-
+        <router-view></router-view>
     </div>
 </template>
 

@@ -3,7 +3,7 @@
 
         <div class="hj-search">
 
-            <Input search enter-button clearable
+            <Input search enter-button 
                    style="width: 300px"
                    @on-search="searchAction"
                    placeholder="输入广告名（按回车键可搜索）..."/>
@@ -17,9 +17,16 @@
                 <Button>删除</Button>
             </Poptip>
         </div>
+        <Page :total="total"
+              :page-size-opts="[10,20,50]"
+              @on-change="adlist"
+              @on-page-size-change="pageSizeChange"
+              show-sizer />
+        <br/>
         <Table border ref="selection" :columns="columns" :data="datas">
             <template slot-scope="{ row }" slot="n_code">
-                <Poptip title="HTML代码"  word-wrap width="500">
+                <Poptip title="HTML代码"  transfer
+                        word-wrap width="500">
                     <div slot="content" class="hj-poptip-cnt">
                        <div>
                            <h6>当前的：</h6>
@@ -30,11 +37,13 @@
                             {{row.n_code}}
                         </div>
                     </div>
-                    <Input placeholder="将要修改的 HTML代码"/>
+                    <Input placeholder="将要修改的 HTML代码"
+                           v-model="row.n_code"/>
                 </Poptip>
             </template>
             <template slot-scope="{ row }" slot="n_intro">
-                <Poptip title="广告简介"  word-wrap width="500">
+                <Poptip title="广告简介" transfer
+                        word-wrap width="500">
 
                     <div slot="content" class="hj-poptip-cnt">
                         <div>
@@ -46,7 +55,9 @@
                             {{row.n_intro}}
                         </div>
                     </div>
-                    <Input placeholder="将要修改的 广告简介"/>
+                    <Input placeholder="将要修改的 广告简介"
+                           v-model="row.n_intro"/>
+
                 </Poptip>
             </template>
             <template slot-scope="{ row, index }" slot="action">
@@ -60,6 +71,8 @@
 </template>
 
 <script>
+    import axios from 'axios'
+
     export default {
         name: "AD",
         data() {
@@ -96,36 +109,69 @@
 
                     }
                 ],
-                datas: [],
-                kw: ''
+                datas: {},
+                kw: '',
+                total:0,
+                pageSize:10
             }
         },
-        methods: {
+        computed:{
 
+        },
+        methods: {
+            pageSizeChange(pageSize){
+                this.pageSize = pageSize;
+                this.adlist(1);
+
+            },
             deleteAction(){
 
             },
             searchAction(kw) {
                 this.kw = kw;
-                this.adlist();
+                this.adlist(1);
 
             },
-            adlist() {
+            adlist(upage) {
+                let ci =Math.floor(this.pageSize/10);
+                let page = (upage-1)*ci +1;
 
-                let params = {r: 'Wap/Advert/adList', page: 1};
+                // console.log(upage);
+                // return;
+                let arr = [];
+                for (let num = 0; num < ci ; num++){
+
+                   arr.push(this.loadAdList(page+num));
+                }
+                console.log(arr);
+                let that = this;
+                axios.all(arr)
+                    .then(axios.spread(function () {
+                        let datas = arguments;
+                    for (let num=0 ; num < datas.length; num++){
+                        that.datas = that.datas.concat(datas[num])
+                    }
+                }));
+              
+            },
+            loadAdList(page){
+                let params = {r: 'Wap/Advert/adList', page: page};
                 if (this.kw) {
                     params.kw = this.kw;
                 }
-                this.$api.get('', {params}).then(data => {
 
-                    this.datas = data.list;
-
-                });
+                return this.$api.get('', {params});
+            // .then(data => {
+            //
+            //         this.dataObj[page] = data.list;
+            //         this.total = parseInt(data.count);
+            //
+            //     })
             }
         },
         created() {
 
-            this.adlist();
+            this.adlist(1);
         }
     }
 </script>
