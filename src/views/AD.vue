@@ -109,7 +109,7 @@
 
                     }
                 ],
-                datas: {},
+                datas: [],
                 kw: '',
                 total:0,
                 pageSize:10
@@ -143,13 +143,14 @@
 
                    arr.push(this.loadAdList(page+num));
                 }
-                console.log(arr);
+
                 let that = this;
                 axios.all(arr)
                     .then(axios.spread(function () {
                         let datas = arguments;
                     for (let num=0 ; num < datas.length; num++){
-                        that.datas = that.datas.concat(datas[num])
+                        console.log(datas[num]['list']);
+                        that.datas = that.datas.concat(datas[num]['list'])
                     }
                 }));
               
