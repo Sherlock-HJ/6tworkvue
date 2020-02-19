@@ -1,22 +1,28 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Login from '../views/Login.vue'
+import AD from '../views/AD.vue'
 
 Vue.use(VueRouter);
 
 const routes = [
   {
+    path:'/',
+    redirect: '/ad'
+  },
+  {
     path: '/login',
     component: Login
   },
   {
-    path: '/a',
-    name: 'a',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/AD.vue')
+    path: '/ad',
+    component: AD
+  },
+  {
+    path: '/ad-add',
+    component: () => import(/* webpackChunkName: "about" */ '../views/ADAdd.vue')
   }
+
 ];
 
 const router = new VueRouter({
