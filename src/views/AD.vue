@@ -3,7 +3,7 @@
 
         <div class="hj-search">
 
-            <Input search enter-button 
+            <Input search enter-button
                    style="width: 300px"
                    @on-search="searchAction"
                    placeholder="输入广告名（按回车键可搜索）..."/>
@@ -21,41 +21,45 @@
               :page-size-opts="[10,20,50]"
               @on-change="adlist"
               @on-page-size-change="pageSizeChange"
-              show-sizer />
+              show-sizer/>
         <br/>
         <Table border ref="selection" :columns="columns" :data="datas">
             <template slot-scope="{ row }" slot="n_code">
-                <Poptip title="HTML代码"  transfer
-                        word-wrap width="500">
+                <Poptip title="HTML代码" transfer
+                        word-wrap width="1000">
                     <div slot="content" class="hj-poptip-cnt">
-                       <div>
-                           <h6>当前的：</h6>
-                           {{row.code}}
-                       </div>
                         <div>
-                            <h6>未来的：</h6>
-                            {{row.n_code}}
+                            <h3>当前的：</h3>
+                            <pre>{{row.code}}</pre>
+                        </div>
+                        <div>
+                            <h3>未来的：</h3>
+                            <pre>{{row.n_code}}</pre>
                         </div>
                     </div>
                     <Input placeholder="将要修改的 HTML代码"
+                           type="textarea"
+                           :rows="1"
                            v-model="row.n_code"/>
                 </Poptip>
             </template>
             <template slot-scope="{ row }" slot="n_intro">
                 <Poptip title="广告简介" transfer
-                        word-wrap width="500">
+                        word-wrap width="1000">
 
                     <div slot="content" class="hj-poptip-cnt">
                         <div>
-                            <h6>当前的：</h6>
-                            {{row.intro}}
+                            <h3>当前的：</h3>
+                            <pre>{{row.intro}}</pre>
                         </div>
                         <div>
-                            <h6>未来的：</h6>
-                            {{row.n_intro}}
+                            <h3>未来的：</h3>
+                            <pre>{{row.n_intro}}</pre>
                         </div>
                     </div>
                     <Input placeholder="将要修改的 广告简介"
+                           type="textarea"
+                           :rows="1"
                            v-model="row.n_intro"/>
 
                 </Poptip>
@@ -67,6 +71,15 @@
                 </Button>
             </template>
         </Table>
+
+        <Modal v-model="modal11"
+               class-name="vertical-left-modal"
+               title="Fullscreen Modal">
+            <div>This is a fullscreen sdfasdfasdfasdfasdjflksjfklas dfkjaslkdfjlk;asjdfl asdlkfjas dfjaslk dfjlkasdfj alksdfj asd
+            sdfsdlfjalksdjflaksdjf
+            fdsjfkajlkdsfj
+            dsfjaklsdj</div>
+        </Modal>
     </div>
 </template>
 
@@ -111,20 +124,19 @@
                 ],
                 datas: [],
                 kw: '',
-                total:0,
-                pageSize:10
+                total: 0,
+                pageSize: 10,
+                modal11: true
             }
         },
-        computed:{
-
-        },
+        computed: {},
         methods: {
-            pageSizeChange(pageSize){
+            pageSizeChange(pageSize) {
                 this.pageSize = pageSize;
                 this.adlist(1);
 
             },
-            deleteAction(){
+            deleteAction() {
 
             },
             searchAction(kw) {
@@ -133,41 +145,46 @@
 
             },
             adlist(upage) {
-                let ci =Math.floor(this.pageSize/10);
-                let page = (upage-1)*ci +1;
+                let ci = Math.floor(this.pageSize / 10);
+                let page = (upage - 1) * ci + 1;
 
                 // console.log(upage);
                 // return;
                 let arr = [];
-                for (let num = 0; num < ci ; num++){
+                for (let num = 0; num < ci; num++) {
 
-                   arr.push(this.loadAdList(page+num));
+                    arr.push(this.loadAdList(page + num));
                 }
 
                 let that = this;
                 axios.all(arr)
                     .then(axios.spread(function () {
                         let datas = arguments;
-                    for (let num=0 ; num < datas.length; num++){
-                        console.log(datas[num]['list']);
-                        that.datas = that.datas.concat(datas[num]['list'])
-                    }
-                }));
-              
+                        let tmp = [];
+                        that.total = parseInt(datas[0]['count']);
+
+                        for (let num = 0; num < datas.length; num++) {
+                            if (datas[num]['stat']) {
+                                tmp = tmp.concat(datas[num]['list']);
+                            }
+
+                        }
+                        that.datas = tmp;
+                    }));
+
             },
-            loadAdList(page){
+            loadAdList(page) {
                 let params = {r: 'Wap/Advert/adList', page: page};
                 if (this.kw) {
                     params.kw = this.kw;
                 }
 
                 return this.$api.get('', {params});
-            // .then(data => {
-            //
-            //         this.dataObj[page] = data.list;
-            //         this.total = parseInt(data.count);
-            //
-            //     })
+                // .then(data => {
+                //
+                //         this.dataObj[page] = data.list;
+                //
+                //     })
             }
         },
         created() {
@@ -192,12 +209,32 @@
         display: flex;
 
     }
-    .hj-poptip-cnt{
-        display: flex;
+
+    .hj-poptip-cnt {
+        /*display: flex;*/
+        max-height: 500px;
+        overflow:auto;
     }
-    .hj-poptip-cnt >>> div{
-        width: 45%;
-        padding: 5px;
-        border-right: solid #eeeeee 1px;
+
+    .hj-poptip-cnt >>> div {
+        padding-top: 5px;
+        border-top: solid #eeeeee 1px;
+    }
+    .hj-poptip-cnt h3{
+        color: #8c0776;
+    }
+
+
+
+</style>
+
+<style>
+    .vertical-left-modal {
+
+    }
+
+    .vertical-left-modal .ivu-modal {
+        margin: 0;
+        float: left;
     }
 </style>
