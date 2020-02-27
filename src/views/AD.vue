@@ -12,6 +12,13 @@
         <div class="hj-toolbar">
             <Poptip
                     confirm
+                    :title="updateTitle"
+                    @on-ok="updateAction">
+                <Button @click="updateAd()" type="primary">提交</Button>
+            </Poptip>
+
+            <Poptip
+                    confirm
                     :title="deleteTitle"
                     @on-ok="deleteAction">
                 <Button @click="deleteAd()">删除</Button>
@@ -67,10 +74,10 @@
 
                 </Poptip>
             </template>
-            <template slot-scope="{ row, index }" slot="action">
+            <template slot-scope="{ row }" slot="action">
                 <Button type="primary"
-                        size="small"
-                        @click="show(index)">提交
+                size="small"
+                @click="updateOneAd(row)">提交
                 </Button>
             </template>
         </Table>
@@ -121,26 +128,70 @@
                 total: 0,
                 pageSize: 10,
                 modal11: true,
-                tableSelection:[],
-                deleteTitle:''
+                tableSelection: [],
+                deleteTitle: '',
+                updateTitle: ''
             }
         },
         computed: {},
         methods: {
-            tableSelect(selection,row){
+            updateOneAd(row){
+                this.updateAdReq(row).then(data => {
+                    console.log(data);
+                });
+            },
+            updateAction() {
+                let arr = [];
+                for (let num = 0; num < this.tableSelection.length; num++) {
+
+                    arr.push(this.updateAdReq(this.tableSelection[num]));
+                }
+
+                let that = this;
+                axios.all(arr)
+                    .then(axios.spread(function () {
+                        let datas = arguments;
+                        console.log(datas);
+                        that.adlist(1);
+
+                    }));
+            },
+            updateAd() {
+                this.updateTitle = `确定提交这${this.tableSelection.length}条吗？`;
+            },
+            updateAdReq(obj) {
+                console.log(obj);
+
+                let params = {r: 'Wap/Advert/updateAd'};
+                let data = {
+                    "name": obj.name,
+                    "ecode": obj.code +'\n\n'+obj.ecode,
+                    "etime": '',
+                    "stime": '',
+                    "code": obj.n_code,
+                    "intro": obj.n_intro,
+                    "model": obj.model,
+                    "navid": obj.id,
+                    "status": obj.status,
+                    "classid": obj.classid,
+                    "number": ""
+                };
+                return this.$api.post('', {data}, {params});
+            },
+            tableSelect(selection, row) {
                 this.tableSelection = selection;
 
             },
-            tableSelectAll(selection){
+            tableSelectAll(selection) {
                 this.tableSelection = selection;
 
             },
-            deleteAd(){
-               this.deleteTitle = `确定删除这${this.tableSelection.length}条吗？`;
+            deleteAd() {
+                this.deleteTitle = `确定删除这${this.tableSelection.length}条吗？`;
 
             },
-            deleteAdReq(adid){
-                let params = {r: 'Wap/Advert/delAd',adid};
+            deleteAdReq(adid) {
+                let params = {r: 'Wap/Advert/delAd', adid};
                 return this.$api.get('', {params});
             },
             pageSizeChange(pageSize) {
@@ -152,7 +203,7 @@
                 let arr = [];
                 for (let num = 0; num < this.tableSelection.length; num++) {
 
-                    arr.push(this.deleteAdReq( this.tableSelection[num]['id']));
+                    arr.push(this.deleteAdReq(this.tableSelection[num]['id']));
                 }
 
                 let that = this;
@@ -160,6 +211,8 @@
                     .then(axios.spread(function () {
                         let datas = arguments;
                         console.log(datas);
+                        that.adlist(1);
+
                     }));
             },
             searchAction(kw) {
@@ -228,20 +281,24 @@
 
     }
 
+    .hj-toolbar >>> div {
+        margin-right: 5px;
+    }
+
     .hj-poptip-cnt {
         /*display: flex;*/
         max-height: 500px;
-        overflow:auto;
+        overflow: auto;
     }
 
     .hj-poptip-cnt >>> div {
         padding-top: 5px;
         border-top: solid #eeeeee 1px;
     }
-    .hj-poptip-cnt h3{
+
+    .hj-poptip-cnt h3 {
         color: #8c0776;
     }
-
 
 
 </style>
