@@ -12,9 +12,9 @@
         <div class="hj-toolbar">
             <Poptip
                     confirm
-                    title="Are you sure you want to delete this item?"
+                    :title="deleteTitle"
                     @on-ok="deleteAction">
-                <Button>删除</Button>
+                <Button @click="deleteAd()">删除</Button>
             </Poptip>
         </div>
         <Page :total="total"
@@ -23,7 +23,10 @@
               @on-page-size-change="pageSizeChange"
               show-sizer/>
         <br/>
-        <Table border ref="selection" :columns="columns" :data="datas">
+        <Table border ref="selection" :columns="columns"
+               @on-select="tableSelect"
+               @on-select-all="tableSelectAll"
+               :data="datas">
             <template slot-scope="{ row }" slot="n_code">
                 <Poptip title="HTML代码" transfer
                         word-wrap width="1000">
@@ -71,15 +74,6 @@
                 </Button>
             </template>
         </Table>
-
-        <Modal v-model="modal11"
-               class-name="vertical-left-modal"
-               title="Fullscreen Modal">
-            <div>This is a fullscreen sdfasdfasdfasdfasdjflksjfklas dfkjaslkdfjlk;asjdfl asdlkfjas dfjaslk dfjlkasdfj alksdfj asd
-            sdfsdlfjalksdjflaksdjf
-            fdsjfkajlkdsfj
-            dsfjaklsdj</div>
-        </Modal>
     </div>
 </template>
 
@@ -126,18 +120,47 @@
                 kw: '',
                 total: 0,
                 pageSize: 10,
-                modal11: true
+                modal11: true,
+                tableSelection:[],
+                deleteTitle:''
             }
         },
         computed: {},
         methods: {
+            tableSelect(selection,row){
+                this.tableSelection = selection;
+
+            },
+            tableSelectAll(selection){
+                this.tableSelection = selection;
+
+            },
+            deleteAd(){
+               this.deleteTitle = `确定删除这${this.tableSelection.length}条吗？`;
+
+            },
+            deleteAdReq(adid){
+                let params = {r: 'Wap/Advert/delAd',adid};
+                return this.$api.get('', {params});
+            },
             pageSizeChange(pageSize) {
                 this.pageSize = pageSize;
                 this.adlist(1);
 
             },
             deleteAction() {
+                let arr = [];
+                for (let num = 0; num < this.tableSelection.length; num++) {
 
+                    arr.push(this.deleteAdReq( this.tableSelection[num]['id']));
+                }
+
+                let that = this;
+                axios.all(arr)
+                    .then(axios.spread(function () {
+                        let datas = arguments;
+                        console.log(datas);
+                    }));
             },
             searchAction(kw) {
                 this.kw = kw;
@@ -153,7 +176,7 @@
                 let arr = [];
                 for (let num = 0; num < ci; num++) {
 
-                    arr.push(this.loadAdList(page + num));
+                    arr.push(this.adListReq(page + num));
                 }
 
                 let that = this;
@@ -173,18 +196,13 @@
                     }));
 
             },
-            loadAdList(page) {
+            adListReq(page) {
                 let params = {r: 'Wap/Advert/adList', page: page};
                 if (this.kw) {
                     params.kw = this.kw;
                 }
 
                 return this.$api.get('', {params});
-                // .then(data => {
-                //
-                //         this.dataObj[page] = data.list;
-                //
-                //     })
             }
         },
         created() {

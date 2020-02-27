@@ -20,8 +20,7 @@
                     style="width:200px">
                 <Option v-for="item in classList"
                         :key="item.classid"
-                        :value="item.classid">{{item.classname}}
-                </Option>
+                        :value="item.classid">{{item.classname}}</Option>
 
             </Select>
         </div>
@@ -42,9 +41,9 @@
         </div>
         <div class="row">
             是否启用
-            <RadioGroup v-model="isRev">
-                <Radio :label="1">是</Radio>
-                <Radio :label="0">否</Radio>
+            <RadioGroup v-model="status">
+                <Radio :label="'1'">是</Radio>
+                <Radio :label="'0'">否</Radio>
             </RadioGroup>
         </div>
         <div class="row">
@@ -58,7 +57,6 @@
         name: "ADAdd",
         data() {
             return {
-                isRev: 1,
                 numScopeMin: 1,
                 numScopeMax: 11,
                 numScope: '1-11',
@@ -68,7 +66,7 @@
                 code: '',
                 intro: '',
                 model: 1,
-                status: '',
+                status: '1',
                 classList: []
             }
         },
@@ -89,6 +87,7 @@
                 }
             },
             classOnChange(obj) {
+                console.log(obj.label+1);
                 this.name = obj.label;
             },
             getAllClassList() {
@@ -99,28 +98,36 @@
                 })
             },
             createAd() {
-                for (let n = this.numScopeMin; n <= this.numScopeMax; n++) {
-                    let data = {
-                        "name": this.name + n,
-                        "ecode": "",
-                        "etime": "",
-                        "stime": "",
-                        "code": "",
-                        "intro": "",
-                        "model": "1",
-                        "status": "1",
-                        "classid": "534",
-                        "number": ""
-                    };
-                    this.creatADReq(data);
-                }
+                this.creatADReq(this.numScopeMin);
             },
-            creatADReq(data) {
+            creatADReq(n) {
+                let data = {
+                    "name": this.name + n,
+                    "ecode": "",
+                    "etime": "",
+                    "stime": "",
+                    "code": "",
+                    "intro": "",
+                    "model": this.model,
+                    "status": this.status,
+                    "classid": this.classid,
+                    "number": ""
+                };
                 let params = {r: 'Wap/Advert/addAd'};
                 this.$api.post('', {data}, {params}).then(data => {
 
-                    console.log(data);
-                })
+                    if (data.stat){
+                        n = n+1;
+                        if (n <= this.numScopeMax){
+                            this.creatADReq(n);
+                        }else {
+                            this.$Message.success(`${this.numScopeMin} - ${this.numScopeMax} 全部成功！`);
+                        }
+                    }else {
+                        this.$Message.warning(`${n} -  ${this.numScopeMax} 失败！`);
+                    }
+
+                });
             }
         },
         mounted() {

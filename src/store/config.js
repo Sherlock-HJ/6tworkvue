@@ -1,13 +1,13 @@
 const isdev = process.env.NODE_ENV === 'development';
 
-let baseURL = '';
-if (isdev){
-   baseURL = '/api';
-
-}else {
-  baseURL = '';
-
-}
+let baseURL = '/api';
+// if (isdev){
+//    baseURL = '/api';
+//
+// }else {
+//   baseURL = 'http://localhost:9999';
+//
+// }
 
 export default {
   namespaced: true,
