@@ -33,7 +33,17 @@
         <Table border ref="selection" :columns="columns"
                @on-select="tableSelect"
                @on-select-all="tableSelectAll"
+               @on-row-click="tableOnRowClick"
                :data="datas">
+            <template slot-scope="{ row }" slot="name">
+                <span class="adNameCopy" :data-clipboard-text="row.name">{{row.name}}</span>
+            </template>
+            <template slot-scope="{ row }" slot="intro">
+                <Input placeholder="广告简介"
+                       type="textarea"
+                       :rows="1"
+                       v-model="row.intro"/>
+            </template>
             <template slot-scope="{ row }" slot="n_code">
                 <Poptip title="HTML代码" transfer
                         word-wrap width="1000">
@@ -53,31 +63,10 @@
                            v-model="row.n_code"/>
                 </Poptip>
             </template>
-            <template slot-scope="{ row }" slot="n_intro">
-                <Poptip title="广告简介" transfer
-                        word-wrap width="1000">
-
-                    <div slot="content" class="hj-poptip-cnt">
-                        <div>
-                            <h3>当前的：</h3>
-                            <pre>{{row.intro}}</pre>
-                        </div>
-                        <div>
-                            <h3>未来的：</h3>
-                            <pre>{{row.n_intro}}</pre>
-                        </div>
-                    </div>
-                    <Input placeholder="将要修改的 广告简介"
-                           type="textarea"
-                           :rows="1"
-                           v-model="row.n_intro"/>
-
-                </Poptip>
-            </template>
             <template slot-scope="{ row }" slot="action">
                 <Button type="primary"
-                size="small"
-                @click="updateOneAd(row)">提交
+                        size="small"
+                        @click="updateOneAd(row)">提交
                 </Button>
             </template>
         </Table>
@@ -86,6 +75,7 @@
 
 <script>
     import axios from 'axios'
+    import Clipboard from 'clipboard'
 
     export default {
         name: "AD",
@@ -98,22 +88,22 @@
                         align: 'center'
                     },
                     {
+                        title: 'id',
+                        key: 'id',
+                        width: 70
+                    },
+                    {
                         title: '名称',
-                        key: 'name'
+                        slot: 'name'
                     },
                     {
                         title: '广告简介',
-                        key: 'intro'
+                        slot: 'intro'
 
                     },
                     {
                         title: '新[HTML代码]',
                         slot: 'n_code'
-
-                    },
-                    {
-                        title: '新[广告简介]',
-                        slot: 'n_intro'
 
                     },
                     {
@@ -130,14 +120,25 @@
                 modal11: true,
                 tableSelection: [],
                 deleteTitle: '',
-                updateTitle: ''
+                updateTitle: '',
+                clipboard: null
             }
         },
         computed: {},
         methods: {
-            updateOneAd(row){
+            tableOnRowClick(row, index) {
+                // console.log(row);
+                // console.log(index);
+                // adNameCopy
+
+            },
+            updateOneAd(row) {
                 this.updateAdReq(row).then(data => {
-                    console.log(data);
+                    if (data.stat) {
+                        this.$Message.success('广告编辑成功');
+                    } else {
+                        this.$Message.warning('广告编辑失败');
+                    }
                 });
             },
             updateAction() {
@@ -160,12 +161,10 @@
                 this.updateTitle = `确定提交这${this.tableSelection.length}条吗？`;
             },
             updateAdReq(obj) {
-                console.log(obj);
-
                 let params = {r: 'Wap/Advert/updateAd'};
                 let data = {
                     "name": obj.name,
-                    "ecode": obj.code +'\n\n'+obj.ecode,
+                    "ecode": obj.code + '\n\n' + obj.ecode,
                     "etime": '',
                     "stime": '',
                     "code": obj.n_code,
@@ -260,7 +259,21 @@
         },
         created() {
 
+            this.clipboard = new Clipboard('.adNameCopy');
+
+            this.clipboard.on('success', (e) => {
+                this.$Message.success('广告名称复制成功！');
+                e.clearSelection();
+            });
+
+            this.clipboard.on('error', () => {
+                this.$Message.error('广告名称复制失败');
+            });
+
             this.adlist(1);
+        },
+        destroyed() {
+            this.clipboard.destroy();
         }
     }
 </script>
