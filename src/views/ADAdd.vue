@@ -47,7 +47,7 @@
             </RadioGroup>
         </div>
         <div class="row">
-            <Button @click="createAd">创建</Button>
+            <Button @click="createAd" :loading="createLoading">创建</Button>
         </div>
     </div>
 </template>
@@ -67,7 +67,8 @@
                 intro: '',
                 model: 1,
                 status: '1',
-                classList: []
+                classList: [],
+                createLoading: false
             }
         },
         methods: {
@@ -98,6 +99,7 @@
                 })
             },
             createAd() {
+                this.createLoading = true;
                 this.creatADReq(this.numScopeMin);
             },
             creatADReq(n) {
@@ -115,16 +117,17 @@
                 };
                 let params = {r: 'Wap/Advert/addAd'};
                 this.$api.post('', {data}, {params}).then(data => {
-
                     if (data.stat){
                         n = n+1;
                         if (n <= this.numScopeMax){
                             this.creatADReq(n);
                         }else {
                             this.$Message.success(`${this.numScopeMin} - ${this.numScopeMax} 全部成功！`);
+                            this.createLoading = false;
                         }
                     }else {
                         this.$Message.warning(`${n} -  ${this.numScopeMax} 失败！`);
+                        this.createLoading = false;
                     }
 
                 });

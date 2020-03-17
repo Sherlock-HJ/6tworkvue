@@ -32,7 +32,9 @@
         <br/>
         <Table border ref="selection" :columns="columns"
                @on-select="tableSelect"
+               @on-select-cancel="tableSelectCancel"
                @on-select-all="tableSelectAll"
+               @on-select-all-cancel="tableSelectAllCancel"
                @on-row-click="tableOnRowClick"
                :data="datas">
             <template slot-scope="{ row }" slot="name">
@@ -42,26 +44,22 @@
                 <Input placeholder="广告简介"
                        type="textarea"
                        :rows="1"
+                       @on-change="introChange"
                        v-model="row.intro"/>
             </template>
-            <template slot-scope="{ row }" slot="n_code">
-                <Poptip title="HTML代码" transfer
-                        word-wrap width="1000">
-                    <div slot="content" class="hj-poptip-cnt">
-                        <div>
-                            <h3>当前的：</h3>
-                            <pre>{{row.code}}</pre>
-                        </div>
-                        <div>
-                            <h3>未来的：</h3>
-                            <pre>{{row.n_code}}</pre>
-                        </div>
-                    </div>
+            <template slot-scope="{ row }" slot="code">
                     <Input placeholder="将要修改的 HTML代码"
                            type="textarea"
-                           :rows="1"
-                           v-model="row.n_code"/>
-                </Poptip>
+                           :rows="5"
+                           @on-change="codeChange"
+                           v-model="row.code"/>
+            </template>
+            <template slot-scope="{ row }" slot="ecode">
+                <Input placeholder="过期的 HTML代码"
+                       type="textarea"
+                       :rows="5"
+                       @on-change="eCodeChange"
+                       v-model="row.ecode"/>
             </template>
             <template slot-scope="{ row }" slot="action">
                 <Button type="primary"
@@ -103,7 +101,12 @@
                     },
                     {
                         title: '新[HTML代码]',
-                        slot: 'n_code'
+                        slot: 'code'
+
+                    },
+                    {
+                        title: '过期[HTML代码]',
+                        slot: 'ecode'
 
                     },
                     {
@@ -121,14 +124,29 @@
                 tableSelection: [],
                 deleteTitle: '',
                 updateTitle: '',
-                clipboard: null
+                clipboard: null,
+                tableCurrentIndex:null
+
             }
         },
         computed: {},
         methods: {
+            introChange(event){
+                console.log(event.target.value);
+                this.datas[this.tableCurrentIndex].intro = event.target.value;
+            },
+            codeChange(event){
+                this.datas[this.tableCurrentIndex].code = event.target.value;
+
+            },
+            eCodeChange(event){
+                this.datas[this.tableCurrentIndex].ecode = event.target.value;
+
+            },
             tableOnRowClick(row, index) {
-                // console.log(row);
-                // console.log(index);
+                console.log(row);
+                console.log(index);
+                this.tableCurrentIndex = index;
                 // adNameCopy
 
             },
@@ -144,7 +162,7 @@
             updateAction() {
                 let arr = [];
                 for (let num = 0; num < this.tableSelection.length; num++) {
-
+                    console.log(this.tableSelection[num]);
                     arr.push(this.updateAdReq(this.tableSelection[num]));
                 }
 
@@ -153,6 +171,7 @@
                     .then(axios.spread(function () {
                         let datas = arguments;
                         console.log(datas);
+                        ///添加成功提示
                         that.adlist(1);
 
                     }));
@@ -164,11 +183,11 @@
                 let params = {r: 'Wap/Advert/updateAd'};
                 let data = {
                     "name": obj.name,
-                    "ecode": obj.code + '\n\n' + obj.ecode,
+                    "ecode": obj.ecode,
                     "etime": '',
                     "stime": '',
-                    "code": obj.n_code,
-                    "intro": obj.n_intro,
+                    "code": obj.code,
+                    "intro": obj.intro,
                     "model": obj.model,
                     "navid": obj.id,
                     "status": obj.status,
@@ -181,7 +200,15 @@
                 this.tableSelection = selection;
 
             },
+            tableSelectCancel(selection, row){
+                this.tableSelection = selection;
+
+            },
             tableSelectAll(selection) {
+                this.tableSelection = selection;
+
+            },
+            tableSelectAllCancel(selection){
                 this.tableSelection = selection;
 
             },
