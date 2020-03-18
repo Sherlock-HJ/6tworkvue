@@ -38,26 +38,26 @@
                @on-row-click="tableOnRowClick"
                :data="datas">
             <template slot-scope="{ row }" slot="name">
-                <span class="adNameCopy" :data-clipboard-text="row.name">{{row.name}}</span>
+                <div class="adNameCopy" :data-clipboard-text="row.name">{{row.name}}</div>
             </template>
             <template slot-scope="{ row }" slot="intro">
                 <Input placeholder="广告简介"
                        type="textarea"
-                       :rows="1"
+                       :rows="10"
                        @on-change="introChange"
                        v-model="row.intro"/>
             </template>
             <template slot-scope="{ row }" slot="code">
                     <Input placeholder="将要修改的 HTML代码"
                            type="textarea"
-                           :rows="5"
+                           :rows="15"
                            @on-change="codeChange"
                            v-model="row.code"/>
             </template>
             <template slot-scope="{ row }" slot="ecode">
                 <Input placeholder="过期的 HTML代码"
                        type="textarea"
-                       :rows="5"
+                       :rows="9"
                        @on-change="eCodeChange"
                        v-model="row.ecode"/>
             </template>
@@ -339,7 +339,10 @@
     .hj-poptip-cnt h3 {
         color: #8c0776;
     }
-
+    .adNameCopy{
+        height: 200px;
+        width: 100%;
+    }
 
 </style>
 
