@@ -26,6 +26,7 @@
         </div>
         <Page :total="total"
               :page-size-opts="[10,20,50]"
+              :current.sync="cpage"
               @on-change="adlist"
               @on-page-size-change="pageSizeChange"
               show-sizer/>
@@ -68,6 +69,29 @@
                 </Button>
             </template>
         </Table>
+        <br/>
+        <Page :total="total"
+              :page-size-opts="[10,20,50]"
+              :current.sync="cpage"
+              @on-change="adlist"
+              @on-page-size-change="pageSizeChange"
+              show-sizer/>
+        <div class="hj-toolbar">
+            <Poptip
+                    confirm
+                    :title="updateTitle"
+                    @on-ok="updateAction">
+                <Button @click="updateAd()" type="primary">提交</Button>
+            </Poptip>
+
+            <Poptip
+                    confirm
+                    :title="deleteTitle"
+                    @on-ok="deleteAction">
+                <Button @click="deleteAd()">删除</Button>
+            </Poptip>
+        </div>
+
     </div>
 </template>
 
@@ -125,7 +149,8 @@
                 deleteTitle: '',
                 updateTitle: '',
                 clipboard: null,
-                tableCurrentIndex:null
+                tableCurrentIndex:null,
+                cpage:1
 
             }
         },
@@ -172,7 +197,7 @@
                         let datas = arguments;
                         console.log(datas);
                         ///添加成功提示
-                        that.adlist(1);
+                        that.adlist(that.cpage);
 
                     }));
             },
@@ -247,6 +272,7 @@
 
             },
             adlist(upage) {
+                this.cpage = upage;
                 let ci = Math.floor(this.pageSize / 10);
                 let page = (upage - 1) * ci + 1;
 
