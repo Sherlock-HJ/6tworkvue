@@ -2,6 +2,11 @@
     <div class="ad-add">
 
         <div class="row">
+            <Input placeholder="添加广告分类"
+                   search
+                   enter-button="添加"
+                   style="width: 300px"
+                   @on-search="addAdClass"/>
             <Select placeholder="广告模式"
                     v-model="model"
                     style="width:200px">
@@ -30,9 +35,9 @@
                    v-model="name"/>
             &nbsp;
             <RadioGroup v-model="numScope" @on-change="numScopeOnChange">
-                <Radio label="1-11"></Radio>
+                <Radio label="1-16"></Radio>
                 <Radio label="1-9"></Radio>
-                <Radio label="1-21"></Radio>
+                <Radio label="1-26"></Radio>
             </RadioGroup>
             <InputNumber :min="1" v-model="numScopeMin" size="small" @on-focus="numScope=''"></InputNumber>
             -
@@ -58,8 +63,8 @@
         data() {
             return {
                 numScopeMin: 1,
-                numScopeMax: 11,
-                numScope: '1-11',
+                numScopeMax: 16,
+                numScope: '1-16',
                 classid: '',
                 name: '',
                 ecode: '',
@@ -73,30 +78,43 @@
         },
         methods: {
             numScopeOnChange(obj) {
-                if (obj === '1-11') {
+                if (obj === '1-16') {
                     this.numScopeMin = 1;
-                    this.numScopeMax = 11;
+                    this.numScopeMax = 16;
                 } else if (obj === '1-9') {
                     this.numScopeMin = 1;
                     this.numScopeMax = 9;
-                } else if (obj === '1-21') {
+                } else if (obj === '1-26') {
                     this.numScopeMin = 1;
-                    this.numScopeMax = 21;
+                    this.numScopeMax = 26;
                 } else {
                     this.numScopeMin = 1;
                     this.numScopeMax = 1;
                 }
             },
             classOnChange(obj) {
-                console.log(obj.label+1);
+                console.log(obj.label + 1);
                 this.name = obj.label;
+            },
+            addAdClass(classname) {
+                let params = {r: 'Wap/AdClass/addAdClass'};
+                let data = {classname};
+                this.$api.post('', {data}, {params}).then(data => {
+                    if (data.stat) {
+                        this.$Message.success(`成功！`);
+                        this.getAllClassList();
+                    } else {
+                        this.$Message.warning(`失败！`);
+
+                    }
+                })
             },
             getAllClassList() {
                 let params = {r: 'Wap/AdClass/getAllList'};
                 this.$api.get('', {params}).then(data => {
 
                     this.classList = data.list;
-                })
+                });
             },
             createAd() {
                 this.createLoading = true;
@@ -117,18 +135,22 @@
                 };
                 let params = {r: 'Wap/Advert/addAd'};
                 this.$api.post('', {data}, {params}).then(data => {
-                    if (data.stat){
-                        n = n+1;
-                        if (n <= this.numScopeMax){
+                    if (data.stat) {
+                        n = n + 1;
+                        if (n <= this.numScopeMax) {
                             this.creatADReq(n);
-                        }else {
+                        } else {
                             this.$Message.success(`${this.numScopeMin} - ${this.numScopeMax} 全部成功！`);
                             this.createLoading = false;
                         }
-                    }else {
+                    } else {
                         this.$Message.warning(`${n} -  ${this.numScopeMax} 失败！`);
                         this.createLoading = false;
                     }
+
+                }).catch(() => {
+                    this.$Message.error(`${n} -  ${this.numScopeMax} 失败！`);
+                    this.createLoading = false;
 
                 });
             }

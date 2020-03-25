@@ -23,6 +23,9 @@
                     @on-ok="deleteAction">
                 <Button @click="deleteAd()">删除</Button>
             </Poptip>
+
+            行数：
+            <InputNumber v-model="textRows"></InputNumber>
         </div>
         <Page :total="total"
               :page-size="pageSize"
@@ -42,24 +45,31 @@
             <template slot-scope="{ row }" slot="name">
                 <div class="adNameCopy" :data-clipboard-text="row.name">{{row.name}}</div>
             </template>
+            <template slot-scope="{ row }" slot="number">
+                <Input placeholder="广告编码"
+                       type="textarea"
+                       :rows="textRows"
+                       @on-change="numberChange"
+                       v-model="row.number"/>
+            </template>
             <template slot-scope="{ row }" slot="intro">
                 <Input placeholder="广告简介"
                        type="textarea"
-                       :rows="10"
+                       :rows="textRows"
                        @on-change="introChange"
                        v-model="row.intro"/>
             </template>
             <template slot-scope="{ row }" slot="code">
                     <Input placeholder="将要修改的 HTML代码"
                            type="textarea"
-                           :rows="15"
+                           :rows="textRows"
                            @on-change="codeChange"
                            v-model="row.code"/>
             </template>
             <template slot-scope="{ row }" slot="ecode">
                 <Input placeholder="过期的 HTML代码"
                        type="textarea"
-                       :rows="9"
+                       :rows="textRows"
                        @on-change="eCodeChange"
                        v-model="row.ecode"/>
             </template>
@@ -118,12 +128,17 @@
                     },
                     {
                         title: '名称',
-                        slot: 'name'
+                        slot: 'name',
+                        width: 100
+
+                    },
+                    {
+                        title: '广告编码',
+                        slot: 'number'
                     },
                     {
                         title: '广告简介',
                         slot: 'intro'
-
                     },
                     {
                         title: '新[HTML代码]',
@@ -152,12 +167,16 @@
                 updateTitle: '',
                 clipboard: null,
                 tableCurrentIndex:null,
-                cpage:1
+                cpage:1,
+                textRows: 15
 
             }
         },
         computed: {},
         methods: {
+            numberChange(event){
+                this.datas[this.tableCurrentIndex].number = event.target.value;
+            },
             introChange(event){
                 console.log(event.target.value);
                 this.datas[this.tableCurrentIndex].intro = event.target.value;
@@ -363,7 +382,6 @@
         color: #8c0776;
     }
     .adNameCopy{
-        height: 200px;
         width: 100%;
     }
 
