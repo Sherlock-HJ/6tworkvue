@@ -234,6 +234,7 @@
                     "code": obj.code,
                     "intro": obj.intro,
                     "navid": obj.id,
+                    "number":obj.number
                 };
                 return this.$api.post('', {data}, {params});
             },
