@@ -25,6 +25,7 @@
             </Poptip>
         </div>
         <Page :total="total"
+              :page-size="pageSize"
               :page-size-opts="[10,20,50]"
               :current.sync="cpage"
               @on-change="adlist"
@@ -71,6 +72,7 @@
         </Table>
         <br/>
         <Page :total="total"
+              :page-size="pageSize"
               :page-size-opts="[10,20,50]"
               :current.sync="cpage"
               @on-change="adlist"
@@ -207,17 +209,12 @@
             updateAdReq(obj) {
                 let params = {r: 'Wap/Advert/updateAd'};
                 let data = {
-                    "name": obj.name,
                     "ecode": obj.ecode,
                     "etime": '',
                     "stime": '',
                     "code": obj.code,
                     "intro": obj.intro,
-                    "model": obj.model,
                     "navid": obj.id,
-                    "status": obj.status,
-                    "classid": obj.classid,
-                    "number": ""
                 };
                 return this.$api.post('', {data}, {params});
             },
