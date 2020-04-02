@@ -1,7 +1,7 @@
 <template>
     <div class="home">
         <Menu mode="horizontal" theme="light" :active-name="maName">
-            <MenuItem name="/ad" to="/">
+            <MenuItem name="/ad" to="/ad">
                 <Icon type="ios-paper" />
                 广告列表
             </MenuItem>
@@ -22,7 +22,8 @@
         name: 'home',
         data() {
             return {
-                ci: 0
+                ci: 0,
+                selectDone: false
             }
         },
         computed:{
@@ -35,10 +36,10 @@
             checkSite() {
                 if (this.ci > 3) return;
                 this.ci++;
-
                 let params = {r: 'Wap/Menu/checkSite', siteid: 1};
+                this.selectDone = false;
                 this.$api.get('', {params}).then(() => {
-
+                    this.selectDone = true;
                     this.$Notice.success({title: '西陆 站点选择成功！'});
 
                 });

@@ -20,7 +20,7 @@ const routes = [
   },
   {
     path: '/ad-add',
-    component: () => import(/* webpackChunkName: "about" */ '../views/ADAdd.vue')
+    component: () => import('../views/ADAdd.vue')
   }
 
 ];
