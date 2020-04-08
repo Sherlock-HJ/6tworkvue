@@ -24,7 +24,7 @@
                 });
             },
             checkSite() {
-          
+
                 let params = {r: 'Wap/Menu/checkSite', siteid: 1};
                 this.$api.get('', {params}).then(() => {
 

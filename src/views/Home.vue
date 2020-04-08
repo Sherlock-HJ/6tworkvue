@@ -9,6 +9,10 @@
                 <Icon type="ios-people" />
                 广告创建
             </MenuItem>
+            <MenuItem name="/ad-generate" to="/ad-generate">
+                <Icon type="ios-people" />
+                广告生成
+            </MenuItem>
 
         </Menu>
         <router-view></router-view>
