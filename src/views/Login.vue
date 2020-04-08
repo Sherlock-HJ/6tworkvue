@@ -18,8 +18,18 @@
 
                 this.$api.post('', json, {params}).then(() => {
 
-                    this.$router.replace('/');
                     this.$Notice.success({title: '登录成功!'});
+                    this.checkSite();
+
+                });
+            },
+            checkSite() {
+          
+                let params = {r: 'Wap/Menu/checkSite', siteid: 1};
+                this.$api.get('', {params}).then(() => {
+
+                    this.$Notice.success({title: '西陆 站点选择成功！'});
+                    this.$router.replace('/');
 
                 });
             }

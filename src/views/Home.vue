@@ -22,8 +22,7 @@
         name: 'home',
         data() {
             return {
-                ci: 0,
-                selectDone: false
+
             }
         },
         computed:{
@@ -33,22 +32,10 @@
         },
         methods: {
 
-            checkSite() {
-                if (this.ci > 3) return;
-                this.ci++;
-                let params = {r: 'Wap/Menu/checkSite', siteid: 1};
-                this.selectDone = false;
-                this.$api.get('', {params}).then(() => {
-                    this.selectDone = true;
-                    this.$Notice.success({title: '西陆 站点选择成功！'});
 
-                });
-            }
         },
         created() {
 
-            this.checkSite();
-            console.log(this.$route);
         }
     }
 </script>
