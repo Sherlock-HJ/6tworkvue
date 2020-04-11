@@ -164,7 +164,7 @@
 
 <style scoped>
     .ad-add {
-        margin: 5px;
+        margin: 10px;
     }
 
     .row {

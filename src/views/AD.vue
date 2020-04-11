@@ -350,7 +350,7 @@
 
 <style scoped>
     .ad {
-        margin: 15px;
+        margin: 10px;
     }
 
     .hj-search {
