@@ -1,6 +1,9 @@
 <template>
     <div class="ADGenerate">
-        <button @click="send()">dafdfa</button>
+        <!--<button @click="send()">dafdfa</button>-->
+        <div>
+            {{adLocs}}
+        </div>
         <Row :gutter="16">
 
             <Col span="12">
@@ -19,20 +22,9 @@
             </Col>
             <Col span="12">
 
-            <Checkbox
-                    :indeterminate="indeterminate"
-                    :value="checkAll"
-                    @click.prevent.native="handleCheckAll">全选
-            </Checkbox>
-            <CheckboxGroup v-model="checkAllGroup" @on-change="checkAllGroupChange">
-                <Checkbox label="首页"></Checkbox>
-                <Checkbox label="列表页"></Checkbox>
-                <Checkbox label="内容页"></Checkbox>
-                <InputNumber :min="1" :max="numScopeMax" v-model="numScopeMin" size="small" ></InputNumber>
-                -
-                <InputNumber :max="30" :min="1" v-model="numScopeMax" size="small"></InputNumber>
+                <ADLocation  v-model="adLocs"></ADLocation>
 
-            </CheckboxGroup>
+
             </Col>
 
         </Row>
@@ -49,52 +41,27 @@
 </template>
 
 <script>
+    import ADLocation from "../components/ADLocation";
     export default {
         name: "ADGenerate",
+        components: {ADLocation},
         data() {
             return {
                 ws: null,
                 platform: '',
                 channelName:'',
                 prepareStr:'',
-                indeterminate: false,
-                checkAll: true,
-                checkAllGroup: ['首页', '列表页', '内容页']
-
+                adLocs: []
             }
         },
         methods: {
+            createAction(){},
             send() {
                 let obj = {func: 'whj'};
                 this.ws.send(JSON.stringify(obj));
 
             },
-            handleCheckAll() {
-                if (this.indeterminate) {
-                    this.checkAll = false;
-                } else {
-                    this.checkAll = !this.checkAll;
-                }
-                this.indeterminate = false;
 
-                if (this.checkAll) {
-                    this.checkAllGroup = ['首页', '列表页', '内容页'];
-                } else {
-                    this.checkAllGroup = [];
-                }
-            },
-            checkAllGroupChange(data) {
-                if (data.length === 3) {
-                    this.indeterminate = false;
-                    this.checkAll = true;
-                } else if (data.length > 0) {
-                    this.indeterminate = true;
-                    this.checkAll = false;
-                } else {
-                    this.indeterminate = false;
-                    this.checkAll = false;
-                }
-            },
             prepareAction(){
                 if (!this.channelName) return;
                 this.prepareStr = "";
