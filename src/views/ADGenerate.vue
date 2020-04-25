@@ -1,9 +1,6 @@
 <template>
     <div class="ADGenerate">
         <!--<button @click="send()">dafdfa</button>-->
-        <div>
-            {{adLocs}}
-        </div>
         <Row :gutter="16">
 
             <Col span="12">
@@ -14,7 +11,6 @@
                 <Option value="sougou">搜狗</Option>
 
             </Select>
-
 
             <Button slot="append" @click="prepareAction">预创建</Button>
 
@@ -66,9 +62,9 @@
                 if (!this.channelName) return;
                 this.prepareStr = "";
                 let prepareArr = [];
-                this.checkAllGroup.forEach(str=>{
-                    for (let num = 1 ; num <= 16; num++) {
-                        prepareArr.push( this.channelName + str + num );
+                this.adLocs.forEach(obj=>{
+                    for (let num = obj.start ; num <= obj.stop; num++) {
+                        prepareArr.push( this.channelName + obj.text + num );
                     }
                 });
                 this.prepareStr = prepareArr.join('\n')
