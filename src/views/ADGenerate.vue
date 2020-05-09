@@ -12,7 +12,7 @@
 
                 </Select>
 
-                <Button slot="append" @click="prepareAction">预创建</Button>
+                <Button slot="append" @click="prepareAction" type="primary">预创建</Button>
 
                 </Input>
                 <Button :type="wsStatus" :loading="wsLoading" @click="wsAction">
@@ -33,7 +33,7 @@
                    v-model="prepareStr"/>
         </Row>
         <Row>
-            <Button @click="createAction">创建</Button>
+            <Button @click="createAction" type="primary">创建</Button>
 
         </Row>
     </div>
