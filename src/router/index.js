@@ -25,6 +25,10 @@ const routes = [
   {
     path: '/ad-generate',
     component: () => import('../views/ADGenerate.vue')
+  },
+  {
+    path: '/test',
+    component: () => import('../views/test.vue')
   }
 
 ];

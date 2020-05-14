@@ -40,37 +40,36 @@
                @on-select-cancel="tableSelectCancel"
                @on-select-all="tableSelectAll"
                @on-select-all-cancel="tableSelectAllCancel"
-               @on-row-click="tableOnRowClick"
                :data="datas">
             <template slot-scope="{ row }" slot="name">
                 <div class="adNameCopy" :data-clipboard-text="row.name">{{row.name}}</div>
             </template>
-            <template slot-scope="{ row }" slot="number">
+            <template slot-scope="{ index,column,row }" slot="number">
                 <Input placeholder="广告编码"
                        type="textarea"
                        :rows="textRows"
-                       @on-change="numberChange"
+                       @on-change="datas[index][column.slot] = row[column.slot]"
                        v-model="row.number"/>
             </template>
-            <template slot-scope="{ row }" slot="intro">
+            <template slot-scope="{ index,column,row }" slot="intro">
                 <Input placeholder="广告简介"
                        type="textarea"
                        :rows="textRows"
-                       @on-change="introChange"
+                       @on-change="datas[index][column.slot] = row[column.slot]"
                        v-model="row.intro"/>
             </template>
-            <template slot-scope="{ row }" slot="code">
+            <template slot-scope="{ index,column,row }" slot="code">
                     <Input placeholder="将要修改的 HTML代码"
                            type="textarea"
                            :rows="textRows"
-                           @on-change="codeChange"
+                           @on-change="datas[index][column.slot] = row[column.slot]"
                            v-model="row.code"/>
             </template>
-            <template slot-scope="{ row }" slot="ecode">
+            <template slot-scope="{ index,column,row }" slot="ecode">
                 <Input placeholder="过期的 HTML代码"
                        type="textarea"
                        :rows="textRows"
-                       @on-change="eCodeChange"
+                       @on-change="datas[index][column.slot] = row[column.slot]"
                        v-model="row.ecode"/>
             </template>
             <template slot-scope="{ row }" slot="action">
@@ -174,28 +173,7 @@
         },
         computed: {},
         methods: {
-            numberChange(event){
-                this.datas[this.tableCurrentIndex].number = event.target.value;
-            },
-            introChange(event){
-                console.log(event.target.value);
-                this.datas[this.tableCurrentIndex].intro = event.target.value;
-            },
-            codeChange(event){
-                this.datas[this.tableCurrentIndex].code = event.target.value;
 
-            },
-            eCodeChange(event){
-                this.datas[this.tableCurrentIndex].ecode = event.target.value;
-
-            },
-            tableOnRowClick(row, index) {
-                console.log(row);
-                console.log(index);
-                this.tableCurrentIndex = index;
-                // adNameCopy
-
-            },
             updateOneAd(row) {
                 this.updateAdReq(row).then(data => {
                     if (data.stat) {
@@ -223,6 +201,7 @@
                     }));
             },
             updateAd() {
+                // console.log(this.datas);
                 this.updateTitle = `确定提交这${this.tableSelection.length}条吗？`;
             },
             updateAdReq(obj) {
