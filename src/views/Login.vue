@@ -1,6 +1,15 @@
 <template>
     <div>
-        登录中...
+        <div >
+            <Select v-model="siteid" @on-change="checkSite"
+                    :label-in-value="true" size="large" style="width:100px">
+                <Option :value="1" >西陆网</Option>
+                <Option :value="2" >南讯网</Option>
+                <Option :value="3" >尚陆网</Option>
+                <Option :value="4" >看社会</Option>
+                <Option :value="8" >moyou_app</Option>
+            </Select>
+        </div>
     </div>
 </template>
 
@@ -11,24 +20,23 @@
             login() {
                 let params = {r: 'Wap/Login/Login'};
                 let json = {
-                    username: "zxw",
+                    username: "刘甜",
                     wapcode: "",
-                    password: "2e1f17104fbb36b97b96229daeb4251c"
+                    password: "e10adc3949ba59abbe56e057f20f883e"
                 };
 
                 this.$api.post('', json, {params}).then(() => {
 
                     this.$Notice.success({title: '登录成功!'});
-                    this.checkSite();
 
                 });
             },
-            checkSite() {
+            checkSite(obj) {
 
-                let params = {r: 'Wap/Menu/checkSite', siteid: 1};
+                let params = {r: 'Wap/Menu/checkSite', siteid:obj.value};
                 this.$api.get('', {params}).then(() => {
 
-                    this.$Notice.success({title: '西陆 站点选择成功！'});
+                    this.$Notice.success({title: obj.label+' 站点选择成功！'});
                     this.$router.replace('/');
 
                 });
