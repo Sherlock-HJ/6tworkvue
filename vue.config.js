@@ -1,15 +1,15 @@
 
 // 3、相关配置
 // 预渲染配置：在webpack.prod.conf文件中加入
-const PrerenderSPAPlugin = require('prerender-spa-plugin');
-const Renderer = PrerenderSPAPlugin.PuppeteerRenderer;
-const path = require('path');
+// const PrerenderSPAPlugin = require('prerender-spa-plugin');
+// const Renderer = PrerenderSPAPlugin.PuppeteerRenderer;
+// const path = require('path');
 
 
 
 
 module.exports = {
-    publicPath: '',
+    publicPath: '/',
     productionSourceMap: false,
     outputDir: 'dist',
 
@@ -25,29 +25,25 @@ module.exports = {
 
     },
 
-    css: {
-        loaderOptions: {
-            less: {
-                javascriptEnabled: true
-            }
-        }
-    },
-    configureWebpack: {
-        plugins: [
-            new PrerenderSPAPlugin({
-                staticDir: path.join(__dirname, 'dist'),
-                routes: [ '/', '/test' ],
-
-                renderer: new Renderer({
-                    inject: {
-                        foo: 'bar'
-                    },
-                    headless: true,
-                    renderAfterDocumentEvent: 'render-event'
-                })
-            })
-        ]
-    }
+    // configureWebpack: config => {
+    //     if (process.env.NODE_ENV !== 'production') return;
+    //     return {
+    //         plugins: [
+    //             new PrerenderSPAPlugin({
+    //                 // 生成文件的路径，也可以与webpakc打包的一致。
+    //                 // 下面这句话非常重要！！！
+    //                 // 这个目录只能有一级，如果目录层次大于一级，在生成的时候不会有任何错误提示，在预渲染的时候只会卡着不动。
+    //                 staticDir: path.join(__dirname,'dist'),
+    //                 // 对应自己的路由文件，比如a有参数，就需要写成 /a/param1。
+    //                 routes: ['/', '/ad','/login'],
+    //                 // 这个很重要，如果没有配置这段，也不会进行预编译
+    //                 renderer:new PrerenderSPAPlugin.PuppeteerRenderer({//这样写renderAfterTime生效了
+    //                     renderAfterTime: 5000
+    //                 })
+    //             }),
+    //         ],
+    //     };
+    // }
     // lintOnSave: false,
     // pages: {
     //     index: {
@@ -70,4 +66,13 @@ module.exports = {
     //     // 输出文件名会被推导为 `subpage.html`。
     //     subpage: 'src/subpage/main.js'
     // }
+    css: {
+        loaderOptions: {
+            less: {
+                javascriptEnabled: true
+            }
+        }
+    },
+
+    lintOnSave: false
 };

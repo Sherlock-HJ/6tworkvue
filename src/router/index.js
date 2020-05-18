@@ -27,13 +27,14 @@ const routes = [
     component: () => import('../views/ADGenerate.vue')
   },
   {
-    path: '/test',
-    component: () => import('../views/test.vue')
+    path:'*',
+    redirect: '/ad'
   }
 
 ];
 
 const router = new VueRouter({
+  mode: "history",
   routes
 });
 
