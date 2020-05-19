@@ -5,8 +5,15 @@ import config from './config'
 Vue.use(Vuex);
 
 export default new Vuex.Store({
-    state: {},
-    mutations: {},
+    state: {
+        checkSiteStr:'暂无'
+    },
+    mutations: {
+        checkSiteMutations (state,str) {
+            // 变更状态
+            state.checkSiteStr = str;
+        }
+    },
     actions: {},
     modules: {
         config

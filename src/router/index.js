@@ -8,7 +8,7 @@ Vue.use(VueRouter);
 const routes = [
   {
     path:'/',
-    redirect: '/ad'
+    redirect: '/check-site'
   },
   {
     path: '/login',
@@ -27,8 +27,12 @@ const routes = [
     component: () => import('../views/ADGenerate.vue')
   },
   {
+    path: '/check-site',
+    component: () => import('../views/CheckSite.vue')
+  },
+  {
     path:'*',
-    redirect: '/ad'
+    redirect: '/'
   }
 
 ];
