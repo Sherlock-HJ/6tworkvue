@@ -11,12 +11,12 @@ Vue.use(ViewUI);
 
 Vue.config.productionTip = false;
 
-new Vue({
+window. appss = new Vue({
   router,
   store,
   render: h => h(App),
-  mounted () {
-    // You'll need this for renderAfterDocumentEvent.
-    document.dispatchEvent(new Event('render-event'))
-  }
-}).$mount('#app');
+  // mounted () {
+  //   // You'll need this for renderAfterDocumentEvent.
+  //   document.dispatchEvent(new Event('render-event'))
+  // }
+}).$mount('#app1');

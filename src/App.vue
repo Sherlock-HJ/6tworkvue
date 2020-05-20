@@ -1,5 +1,6 @@
 <template>
-    <div id="app">
+    <div id="app2">
+        <div id="hj12">dfasd</div>
         <home></home>
     </div>
 </template>
