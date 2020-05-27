@@ -1,5 +1,6 @@
 <template>
     <div>
+        <div style="height: 2px;"></div>
 
             <Button v-for="item in siteDatas" @click="checkSite(item)" :key="item.value" >{{item.label}}</Button>
 
@@ -32,6 +33,10 @@
 
                 });
             }
+        },
+        created(){
+            let params = {r: 'Wap/Advert/adList', page: 1};
+            return this.$api.get('', {params});
         }
     }
 </script>
