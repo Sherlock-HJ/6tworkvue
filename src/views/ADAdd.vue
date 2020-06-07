@@ -7,6 +7,28 @@
                    enter-button="添加"
                    style="width: 300px"
                    @on-search="addAdClass"/>
+            <CheckboxGroup v-model="locs">
+                <Checkbox label="首页"/>
+                <Checkbox label="列表页"/>
+                <Checkbox label="内容页"/>
+            </CheckboxGroup>
+            <Select placeholder="选择广告分类"
+                    multiple
+                    filterable
+                    label-in-value
+                    v-model="delclassids"
+                    style="width:200px">
+                <Option v-for="item in classList"
+                        :key="item.classid"
+                        :label="item.classname"
+                        :value="item.classid"/>
+
+            </Select>
+            <Button @click="delclassAction">删除</Button>
+
+        </div>
+        <Divider>添加广告</Divider>
+        <div class="row">
             <Select placeholder="广告模式"
                     v-model="model"
                     style="width:200px">
@@ -17,7 +39,7 @@
 
             </Select>
             &nbsp;
-            <Select placeholder="广告分类"
+            <Select placeholder="选择广告分类"
                     filterable
                     label-in-value
                     v-model="classid"
@@ -25,10 +47,12 @@
                     style="width:200px">
                 <Option v-for="item in classList"
                         :key="item.classid"
-                        :value="item.classid">{{item.classname}}</Option>
+                        :label="item.classname"
+                        :value="item.classid"/>
 
             </Select>
         </div>
+
         <div class="row">
             <Input placeholder="广告名"
                    style="width: 300px"
@@ -58,6 +82,8 @@
 </template>
 
 <script>
+    import axios from 'axios'
+
     export default {
         name: "ADAdd",
         data() {
@@ -66,6 +92,7 @@
                 numScopeMax: 16,
                 numScope: '1-16',
                 classid: '',
+                delclassids:[],
                 name: '',
                 ecode: '',
                 code: '',
@@ -73,7 +100,8 @@
                 model: 1,
                 status: '1',
                 classList: [],
-                createLoading: false
+                createLoading: false,
+                locs: ['首页', '列表页', '内容页']
             }
         },
         methods: {
@@ -96,18 +124,47 @@
                 console.log(obj.label + 1);
                 this.name = obj.label;
             },
-            addAdClass(classname) {
-                let params = {r: 'Wap/AdClass/addAdClass'};
-                let data = {classname};
-                this.$api.post('', {data}, {params}).then(data => {
-                    if (data.stat) {
-                        this.$Message.success(`成功！`);
-                        this.getAllClassList();
-                    } else {
-                        this.$Message.warning(`失败！`);
-
+            addAdClass(name) {
+                let arr = this.locs.map(obj => {
+                    let classname = name + obj;
+                    let params = {r: 'Wap/AdClass/addAdClass'};
+                    let data = {classname};
+                    return this.$api.post('', {data}, {params});
+                });
+                let that = this;
+                axios.all(arr).then(axios.spread(function () {
+                    let datas = arguments;
+                    let idx = 0;
+                    for (let num = 0; num < datas.length; num++) {
+                        if (datas[num]['stat']) {
+                            idx++;
+                        }
                     }
-                })
+                    that.$Message.success(`${idx}个成功！`);
+                    that.getAllClassList();
+                }));
+
+            },
+            delclassAction(){
+                let arr =  this.delclassids.map(classid => {
+                    let params = {r: 'Wap/AdClass/delAdClass',classid};
+                    return this.$api.get('', {params});
+                });
+                let that = this;
+                axios.all(arr).then(axios.spread(function () {
+                    let datas = arguments;
+                    let idx = 0;
+                    for (let num = 0; num < datas.length; num++) {
+                        if (datas[num]['stat']) {
+                            idx++;
+                        }
+                    }
+                    that.$Message.success(`${idx}个删除成功！`);
+                    that.classList = that.classList.filter(obj=>{
+                        return that.delclassids.indexOf(obj.classid) === -1;
+                    });
+                    that.delclassids = [];
+                }));
             },
             getAllClassList() {
                 let params = {r: 'Wap/AdClass/getAllList'};

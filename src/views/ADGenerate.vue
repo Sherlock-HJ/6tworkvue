@@ -7,8 +7,8 @@
                 <Input v-model="channelName" placeholder="广告名称前缀（或是渠道名）">
                 <Select v-model="platform" slot="prepend" style="width: 80px">
                     <Option value="adnet">优亮汇</Option>
-                    <Option value="x5">TBS</Option>
-                    <Option value="sougou">搜狗</Option>
+                    <Option value="baidu">百度</Option>
+                    <Option value="sogou">搜狗</Option>
 
                 </Select>
 
@@ -19,6 +19,12 @@
                     <span v-if="!wsLoading">{{wsStatus}}!</span>
                     <span v-else>连接中...</span>
                 </Button>
+                <Select v-model="account"  style="width: 180px">
+                    <Option value="shanglujunshi">shanglujunshi</Option>
+                    <Option value="zizaiyangsheng">zizaiyangsheng</Option>
+                    <Option value="nanxunwang">nanxunwang</Option>
+
+                </Select>
             </Col>
             <Col span="12">
 
@@ -53,7 +59,8 @@
                 prepareStr: '',
                 adLocs: [],
                 wsLoading: false,
-                wsStatus: 'dashed'
+                wsStatus: 'dashed',
+                account:''
             }
         },
         methods: {
@@ -63,12 +70,13 @@
                     this.$Message.warning('服务已经断开！请重连');
                     return null;
                 }
-                this.send('create1');
-                this.send('create');
+
+                this.send(this.platform+'Add');
 
             },
             send(func) {
-                let obj = {func,body:'hello'};
+                let body = {names:this.prepareStr.split('\n'),account:this.account};
+                let obj = {func,body};
                 this.ws.send(JSON.stringify(obj));
 
             },
@@ -83,15 +91,34 @@
                 let prepareArr = [];
                 this.adLocs.forEach(obj => {
                     for (let num = obj.start; num <= obj.stop; num++) {
-                        prepareArr.push(this.channelName + obj.text + num);
+                        let type = '';
+                        if (this.platform === 'adnet') {
+                            type = ','+this.adnetType(num,obj.seg);
+                        }
+                        prepareArr.push(this.channelName + obj.text + num +type);
                     }
                 });
                 this.prepareStr = prepareArr.join('\n')
 
             },
+            adnetType(num,seg){
+                if (num <= seg){
+                    return 10;
+                }
+                let r = Math.floor(Math.random() * 3);
+                if (r === 0){
+                    return 4;
+                }
+                if (r === 1){
+                    return 10;
+                }
+                if (r === 2){
+                    return 9;
+                }
+            },
             openWs() {
                 this.wsLoading = true;
-                this.ws = new WebSocket('ws://localhost:8765');
+                this.ws = new WebSocket('ws://6twork/websocket');
                 this.ws.onopen = () => {
                     this.wsLoading = false;
                     this.wsStatus = 'success'

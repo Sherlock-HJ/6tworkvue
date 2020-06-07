@@ -33,17 +33,20 @@
                     shou: {
                         text: '首页',
                         start: 1,
-                        stop: 16
+                        stop: 16,
+                        seg: 1
                     },
                     lie: {
                         text: '列表页',
                         start: 1,
-                        stop: 9
+                        stop: 9,
+                        seg: 1
                     },
                     nei: {
                         text: '内容页',
                         start: 1,
-                        stop: 26
+                        stop: 26,
+                        seg: 4
                     }
                 }
             }
