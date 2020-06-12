@@ -31,6 +31,10 @@ const routes = [
     component: () => import('../views/CheckSite.vue')
   },
   {
+    path: '/qsention',
+    component: () => import('../views/qsention.vue')
+  },
+  {
     path:'*',
     redirect: '/'
   }
