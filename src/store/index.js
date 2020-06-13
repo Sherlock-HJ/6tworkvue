@@ -6,12 +6,13 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
-        checkSiteStr:'暂无'
+        checkSiteStr:sessionStorage.getItem('CheckSite')
     },
     mutations: {
         checkSiteMutations (state,str) {
             // 变更状态
             state.checkSiteStr = str;
+            sessionStorage.setItem('CheckSite',str);
         }
     },
     actions: {},

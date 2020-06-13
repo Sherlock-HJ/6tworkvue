@@ -18,8 +18,8 @@
                     password: "e10adc3949ba59abbe56e057f20f883e"
                 };
 
-                this.$api.post('', json, {params}).then(() => {
-
+                this.$api.post('', json, {params}).then((obj) => {
+                    console.log(obj.wapcode);
                     this.$Notice.success({title: '登录成功!'});
                     this.$router.replace('/');
 

@@ -24,19 +24,19 @@
         methods: {
             checkSite(obj) {
 
-
                 let params = {r: 'Wap/Menu/checkSite', siteid: obj.value};
                 this.$api.get('', {params}).then(() => {
                     this.$store.commit('checkSiteMutations',obj.label);
                     this.$Notice.success({title: obj.label + ' 站点选择成功！'});
                     this.$router.push('/ad');
-
                 });
             }
         },
         created(){
+            this.$store.commit('checkSiteMutations','请选择');
+
             let params = {r: 'Wap/Advert/adList', page: 1};
-            return this.$api.get('', {params});
+            this.$api.get('', {params});
         }
     }
 </script>
