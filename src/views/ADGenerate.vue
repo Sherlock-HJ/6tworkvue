@@ -125,18 +125,31 @@
                 };
                 this.ws.onclose = ev => {
                     console.log(ev);
-                    this.wsStatus = 'warning'
+                    this.wsStatus = 'warning';
+                    if (this.closeNum<3){
+                        this.openWs();
+                    }
+                    this.closeNum++;
                 };
                 this.ws.onerror = ev => {
                     console.log(ev);
                     this.wsStatus = 'error'
+                    if (this.errorNum<3){
+                        this.openWs();
+                    }
+                    this.errorNum++;
                 };
                 this.ws.onmessage = ev => {
-                    let obj = JSON.parse(ev.data);
+                    console.log(ev.data);
+                    // let obj = JSON.parse(ev.data);
+
                 };
             }
         },
         created() {
+            this.errorNum = 0;
+            this.closeNum = 0;
+
             this.openWs();
 
         },
