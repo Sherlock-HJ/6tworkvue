@@ -11,6 +11,7 @@ export default {
     // Vue.prototype.$spinner = spinner;
     // Vue.prototype.$dropDown = dropDown;
     Vue.prototype.$api = axios.create();
+    Vue.prototype.$ctrl = axios.create();
     Vue.prototype.$m = methods;
     // Vue.prototype.$cookie = cookie;
 

@@ -18,7 +18,26 @@ module.exports = {
             '/api': {
                 target: 'http://manager.m.xilu.com',
                 ws: true,
-                changeOrigin: true
+                changeOrigin: true,
+                pathRewrite: {
+                    '^/api': '',
+                },
+            },
+            '/ctrl': {
+                target: 'http://127.0.0.1:8000',
+                ws: true,
+                changeOrigin: true,
+                pathRewrite: {
+                    '^/ctrl': '',
+                },
+            },
+            '/app': {
+                target: 'http://localhost/index.php',
+                ws: true,
+                changeOrigin: true,
+                pathRewrite: {
+                    '^/app': '',
+                },
             }
         }
         // ,disableHostCheck: true

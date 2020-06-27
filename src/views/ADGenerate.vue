@@ -81,8 +81,13 @@
 
             },
             wsAction() {
+                this.$ctrl.get('/app').then(()=>{
+
+                });
                 if (this.wsStatus !== 'success') {
-                    this.openWs();
+                    this.$ctrl.get('/ctrl').then(()=>{
+                        this.openWs();
+                    });
                 }
             },
             prepareAction() {
@@ -118,7 +123,7 @@
             },
             openWs() {
                 this.wsLoading = true;
-                this.ws = new WebSocket('ws://6twork/websocket');
+                this.ws = new WebSocket('ws://localhost:8765');
                 this.ws.onopen = () => {
                     this.wsLoading = false;
                     this.wsStatus = 'success'
