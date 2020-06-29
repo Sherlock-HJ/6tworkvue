@@ -65,7 +65,7 @@
             </RadioGroup>
             <InputNumber :min="1" v-model="numScopeMin" size="small" @on-focus="numScope=''"></InputNumber>
             -
-            <InputNumber :max="30" :min="1" v-model="numScopeMax" size="small" @on-focus="numScope=''"></InputNumber>
+            <InputNumber :max="60" :min="1" v-model="numScopeMax" size="small" @on-focus="numScope=''"></InputNumber>
 
         </div>
         <div class="row">
