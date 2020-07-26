@@ -40,7 +40,7 @@ module.exports = {
                 },
             }
         }
-        // ,disableHostCheck: true
+        ,disableHostCheck: true
 
     },
 
