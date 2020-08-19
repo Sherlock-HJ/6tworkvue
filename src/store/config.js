@@ -1,5 +1,5 @@
 
-let baseURL = '/api';
+let baseURL = 'http://manager.m.xilu.com';
 
 export default {
   namespaced: true,

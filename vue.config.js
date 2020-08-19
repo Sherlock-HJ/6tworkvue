@@ -9,7 +9,7 @@
 
 
 module.exports = {
-    publicPath: '/',
+    publicPath: '',
     productionSourceMap: false,
     outputDir: 'dist',
 
