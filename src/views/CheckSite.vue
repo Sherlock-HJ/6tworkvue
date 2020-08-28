@@ -24,6 +24,7 @@
         methods: {
             checkSite(obj) {
 
+
                 let params = {r: 'Wap/Menu/checkSite', siteid: obj.value};
                 this.$api.get('', {params}).then(() => {
                     this.$store.commit('checkSiteMutations',obj.label);

@@ -108,7 +108,7 @@
 
 <script>
     import axios from 'axios'
-    import Clipboard from 'clipboard'
+    // import Clipboard from 'clipboard'
 
     export default {
         name: "AD",

@@ -13,6 +13,7 @@ export default {
     Vue.prototype.$api = axios.create();
     Vue.prototype.$ctrl = axios.create();
     Vue.prototype.$m = methods;
+
     // Vue.prototype.$cookie = cookie;
 
   }
