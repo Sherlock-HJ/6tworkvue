@@ -45,7 +45,7 @@ module.exports = {
     },
 
     configureWebpack: {
-            // target: 'electron-renderer',
+            target: 'electron-renderer',
             // plugins: [
             //     new PrerenderSPAPlugin({
             //         // 生成文件的路径，也可以与webpakc打包的一致。
@@ -65,7 +65,7 @@ module.exports = {
     // pages: {
     //     index: {
     //         // page 的入口
-    //         entry: 'src/main.js',
+    //         entry: 'src/app.js',
     //         // 模板来源
     //         template: 'public/index.html',
     //         // 在 dist/index.html 的输出
@@ -81,7 +81,7 @@ module.exports = {
     //     // 模板会被推导为 `public/subpage.html`
     //     // 并且如果找不到的话，就回退到 `public/index.html`。
     //     // 输出文件名会被推导为 `subpage.html`。
-    //     subpage: 'src/subpage/main.js'
+    //     subpage: 'src/subpage/app.js'
     // }
     css: {
         loaderOptions: {

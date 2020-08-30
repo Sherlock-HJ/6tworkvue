@@ -108,7 +108,6 @@
 
 <script>
     import axios from 'axios'
-    // import Clipboard from 'clipboard'
 
     export default {
         name: "AD",
@@ -164,7 +163,6 @@
                 tableSelection: [],
                 deleteTitle: '',
                 updateTitle: '',
-                clipboard: null,
                 tableCurrentIndex:null,
                 cpage:1,
                 textRows: 15
@@ -307,22 +305,9 @@
             }
         },
         created() {
-
-            this.clipboard = new Clipboard('.adNameCopy');
-
-            this.clipboard.on('success', (e) => {
-                this.$Message.success('广告名称复制成功！');
-                e.clearSelection();
-            });
-
-            this.clipboard.on('error', () => {
-                this.$Message.error('广告名称复制失败');
-            });
-
             this.adlist(1);
         },
         destroyed() {
-            this.clipboard.destroy();
         }
     }
 </script>
