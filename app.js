@@ -2,52 +2,52 @@
 const {app, BrowserWindow} = require('electron');
 const debug = /--debug/.test(process.argv[2]);
 
-function createWindow () {
-  // Create the browser window.
-  const mainWindow = new BrowserWindow({
-    width: 1600,
-    height: 900,
-    webPreferences: {
-      nodeIntegration: true,
-      // enableRemoteModule: false,
-      // webSecurity:true
-    }
-  });
+function createWindow() {
+    // Create the browser window.
+    const mainWindow = new BrowserWindow({
+        width: 1600,
+        height: 900,
+        webPreferences: {
+            nodeIntegration: true,
+            // enableRemoteModule: false,
+            // webSecurity:true
+        }
+    });
 
-  // and load the index.html of the app.
-  // if(debug){
-  //   mainWindow.loadURL('http://localhost:8080/');
-  //   mainWindow.webContents.openDevTools();
-  // }else {
-    mainWindow.loadFile('./dist/index.html');
-  // }
+    // and load the index.html of the app.
+    if (debug) {
+        mainWindow.loadURL('http://localhost:8080/');
+        mainWindow.webContents.openDevTools();
+    } else {
+        mainWindow.loadFile('./dist/index.html');
+    }
     mainWindow.maximize();
 
 
-  // mainWindow.loadURL('http://localhost:8080/')
-  // mainWindow.loadURL('http://39.100.25.53:8082/')
+    // mainWindow.loadURL('http://localhost:8080/')
+    // mainWindow.loadURL('http://39.100.25.53:8082/')
 
-  // Open the DevTools.
+    // Open the DevTools.
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-  createWindow();
-  
-  app.on('activate', function () {
-    // On macOS it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
-  })
+    createWindow();
+
+    app.on('activate', function () {
+        // On macOS it's common to re-create a window in the app when the
+        // dock icon is clicked and there are no other windows open.
+        if (BrowserWindow.getAllWindows().length === 0) createWindow()
+    })
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on('window-all-closed', function () {
-  if (process.platform !== 'darwin') app.quit()
+    if (process.platform !== 'darwin') app.quit()
 });
 
 // In this file you can include the rest of your app's specific main process
