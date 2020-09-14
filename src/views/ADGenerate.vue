@@ -1,9 +1,14 @@
 <template>
     <div class="ADGenerate">
-        <!--<button @click="send()">dafdfa</button>-->
         <Row :gutter="16">
 
             <Col span="12">
+                <Input v-model="account">
+                    <span slot="prepend">账号</span>
+                </Input>
+                <Input v-model="pwd">
+                    <span slot="prepend">密码</span>
+                </Input>
                 <Input v-model="channelName" placeholder="广告名称前缀（或是渠道名）">
                 <Select v-model="platform" slot="prepend" style="width: 80px">
                     <Option value="adnet">优亮汇</Option>
@@ -15,16 +20,8 @@
                 <Button slot="append" @click="prepareAction" type="primary">预创建</Button>
 
                 </Input>
-                <Button :type="wsStatus" :loading="wsLoading" @click="wsAction">
-                    <span v-if="!wsLoading">{{wsStatus}}!</span>
-                    <span v-else>连接中...</span>
-                </Button>
-                <Select v-model="account"  style="width: 180px">
-                    <Option value="shanglujunshi">shanglujunshi</Option>
-                    <Option value="zizaiyangsheng">zizaiyangsheng</Option>
-                    <Option value="nanxunwang">nanxunwang</Option>
 
-                </Select>
+
             </Col>
             <Col span="12">
 
@@ -39,6 +36,14 @@
                    v-model="prepareStr"/>
         </Row>
         <Row>
+            <RadioGroup v-model="model">
+                <Radio label="add">
+                    <span>追加</span>
+                </Radio>
+                <Radio label="cover">
+                    <span>覆盖</span>
+                </Radio>
+            </RadioGroup>
             <Button @click="createAction" type="primary">创建</Button>
 
         </Row>
@@ -47,49 +52,47 @@
 
 <script>
     import ADLocation from "../components/ADLocation";
-
+    import {clipboard,ipcRenderer } from "electron";
     export default {
         name: "ADGenerate",
         components: {ADLocation},
         data() {
             return {
                 ws: null,
-                platform: '',
+                platform: 'adnet',
                 channelName: '',
                 prepareStr: '',
                 adLocs: [],
-                wsLoading: false,
-                wsStatus: 'dashed',
-                account:''
+                account:'',
+                pwd:'',
+                model:null,
+                mtid:null
+
             }
         },
         methods: {
             createAction() {
-
-                if (this.wsStatus !== 'success') {
-                    this.$Message.warning('服务已经断开！请重连');
-                    return null;
+                if (!this.model) {
+                    this.$Message.warning('请选择创建模式（追加/覆盖）');
+                    return;
                 }
 
-                this.send(this.platform+'Add');
+                let obj = {};
+                obj.account = this.account;
+                obj.pwd = this.pwd;
+                obj.model = this.model;
+                obj.adnames = this.prepareStr.split('\n');
+
+                obj.mtid = this.mtid;
+                console.log(obj);
+                clipboard.writeText(JSON.stringify(obj));
+                ipcRenderer.send('asynchronous-message', obj);
+
+
+                this.model = null;
 
             },
-            send(func) {
-                let body = {names:this.prepareStr.split('\n'),account:this.account};
-                let obj = {func,body};
-                this.ws.send(JSON.stringify(obj));
 
-            },
-            wsAction() {
-                this.$ctrl.get('/app').then(()=>{
-
-                });
-                if (this.wsStatus !== 'success') {
-                    this.$ctrl.get('/ctrl').then(()=>{
-                        this.openWs();
-                    });
-                }
-            },
             prepareAction() {
                 if (!this.channelName) return;
                 this.prepareStr = "";
@@ -120,46 +123,16 @@
                 if (r === 2){
                     return 9;
                 }
-            },
-            openWs() {
-                this.wsLoading = true;
-                this.ws = new WebSocket('ws://localhost:8765');
-                this.ws.onopen = () => {
-                    this.wsLoading = false;
-                    this.wsStatus = 'success'
-                };
-                this.ws.onclose = ev => {
-                    console.log(ev);
-                    this.wsStatus = 'warning';
-                    if (this.closeNum<3){
-                        this.openWs();
-                    }
-                    this.closeNum++;
-                };
-                this.ws.onerror = ev => {
-                    console.log(ev);
-                    this.wsStatus = 'error'
-                    if (this.errorNum<3){
-                        this.openWs();
-                    }
-                    this.errorNum++;
-                };
-                this.ws.onmessage = ev => {
-                    console.log(ev.data);
-                    // let obj = JSON.parse(ev.data);
-
-                };
             }
         },
         created() {
             this.errorNum = 0;
             this.closeNum = 0;
 
-            this.openWs();
 
         },
         destroyed() {
-            this.ws.close();
+
         }
     }
 </script>

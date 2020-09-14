@@ -4,7 +4,7 @@
   "private": true,
   "main": "app.js",
   "scripts": {
-    "start": "electron .  --debug",
+    "start": "chcp 65001 && electron .  --debug",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build && electron-packager . --overwrite",
     "lint": "vue-cli-service lint"

@@ -8,6 +8,7 @@
 </template>
 
 <script>
+    import {shell} from 'electron'
     export default {
         name: "CheckSite",
         data(){
@@ -24,7 +25,9 @@
         methods: {
             checkSite(obj) {
 
+                shell.openExternal('https://github.com')
 
+                shell.beep();
                 let params = {r: 'Wap/Menu/checkSite', siteid: obj.value};
                 this.$api.get('', {params}).then(() => {
                     this.$store.commit('checkSiteMutations',obj.label);

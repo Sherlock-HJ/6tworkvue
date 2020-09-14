@@ -1,22 +1,9 @@
 // Modules to control application life and create native browser window
 const {app, BrowserWindow,ipcMain } = require('electron');
-const child_process = require('child_process');
-
 
 ipcMain.on('asynchronous-message', (event, arg) => {
-    var workerProcess = child_process.exec('python  C:\\Users\\521mm\\Documents\\GitHub\\pyDemo\\adnetAdd.py', function (error, stdout, stderr) {
-        if (error) {
-            console.log(error.stack);
-            console.log('Error code: '+error.code);
-            console.log('Signal received: '+error.signal);
-        }
-        console.log('stdout: ' + stdout);
-        console.log('stderr: ' + stderr);
-    });
-
-    workerProcess.on('exit', function (code) {
-        console.log('子进程已退出，退出码 '+code);
-    });
+    console.log(arg); // prints "ping"
+    console.log('阿斯蒂芬');
 });
 console.log('阿斯蒂芬');
 
