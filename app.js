@@ -4,7 +4,8 @@ const child_process = require('child_process');
 
 
 ipcMain.on('asynchronous-message', (event, arg) => {
-    var workerProcess = child_process.exec('python  C:\\Users\\521mm\\Documents\\GitHub\\pyDemo\\adnetAdd.py', function (error, stdout, stderr) {
+    let command = 'python  C:\\Users\\521mm\\Documents\\GitHub\\pyDemo\\adnetGet1.py';
+    let workerProcess = child_process.exec(command,  (error, stdout, stderr)=> {
         if (error) {
             console.log(error.stack);
             console.log('Error code: '+error.code);
@@ -18,7 +19,6 @@ ipcMain.on('asynchronous-message', (event, arg) => {
         console.log('子进程已退出，退出码 '+code);
     });
 });
-console.log('阿斯蒂芬');
 
 
 const debug = /--debug/.test(process.argv[2]);

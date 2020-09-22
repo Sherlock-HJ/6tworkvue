@@ -36,6 +36,8 @@
                    v-model="prepareStr"/>
         </Row>
         <Row>
+
+            <Button @click="createAction" type="primary">创建</Button>
             <RadioGroup v-model="model">
                 <Radio label="add">
                     <span>追加</span>
@@ -44,7 +46,7 @@
                     <span>覆盖</span>
                 </Radio>
             </RadioGroup>
-            <Button @click="createAction" type="primary">创建</Button>
+            <Button @click="createAction" type="primary">获取</Button>
 
         </Row>
     </div>
@@ -87,7 +89,6 @@
                 console.log(obj);
                 clipboard.writeText(JSON.stringify(obj));
                 ipcRenderer.send('asynchronous-message', obj);
-
 
                 this.model = null;
 
