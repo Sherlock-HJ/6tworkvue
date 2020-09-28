@@ -4,7 +4,8 @@
   "private": true,
   "main": "app.js",
   "scripts": {
-    "start": "chcp 65001 && electron .  --debug",
+    "start": "electron .  --debug",
+    "startwin": "chcp 65001 && electron .  --debug",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build && electron-packager . --overwrite",
     "lint": "vue-cli-service lint"
@@ -15,6 +16,7 @@
     "js-cookie": "^2.2.1",
     "js-md5": "^0.7.3",
     "qs": "^6.9.1",
+    "selenium-webdriver": "^4.0.0-alpha.7",
     "stylus-loader": "^3.0.2",
     "view-design": "^4.0.2",
     "vue": "^2.6.10",
@@ -28,7 +30,7 @@
     "@vue/cli-service": "^4.1.0",
     "babel-eslint": "^10.0.3",
     "babel-plugin-import": "^1.13.0",
-    "electron": "^9.2.1",
+    "electron": "^10.1.2",
     "electron-packager": "^15.1.0",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",

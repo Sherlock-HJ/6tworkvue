@@ -74,12 +74,15 @@
         },
         methods: {
             createAction() {
+                alert('jklajsdlkf;a');
+
                 if (!this.model) {
                     this.$Message.warning('请选择创建模式（追加/覆盖）');
                     return;
                 }
 
                 let obj = {};
+                obj.platform = this.platform;
                 obj.account = this.account;
                 obj.pwd = this.pwd;
                 obj.model = this.model;

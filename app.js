@@ -1,23 +1,13 @@
 // Modules to control application life and create native browser window
-const {app, BrowserWindow,ipcMain } = require('electron');
-const child_process = require('child_process');
+const webdriver = require("selenium-webdriver");
 
+const {app, BrowserWindow, ipcMain} = require('electron');
 
 ipcMain.on('asynchronous-message', (event, arg) => {
-    let command = 'python  C:\\Users\\521mm\\Documents\\GitHub\\pyDemo\\adnetGet1.py';
-    let workerProcess = child_process.exec(command,  (error, stdout, stderr)=> {
-        if (error) {
-            console.log(error.stack);
-            console.log('Error code: '+error.code);
-            console.log('Signal received: '+error.signal);
-        }
-        console.log('stdout: ' + stdout);
-        console.log('stderr: ' + stderr);
-    });
-
-    workerProcess.on('exit', function (code) {
-        console.log('子进程已退出，退出码 '+code);
-    });
+    console.log(arg);
+    var driver = new webdriver.Builder().forBrowser('chrome').build();
+    driver.get('http://www.baidu.com');
+    return;
 });
 
 
