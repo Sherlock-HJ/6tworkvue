@@ -1,12 +1,43 @@
 // Modules to control application life and create native browser window
-const webdriver = require("selenium-webdriver");
+const {Builder, By, Key, until} = require('selenium-webdriver');
 
 const {app, BrowserWindow, ipcMain} = require('electron');
 
 ipcMain.on('asynchronous-message', (event, arg) => {
     console.log(arg);
-    var driver = new webdriver.Builder().forBrowser('chrome').build();
-    driver.get('http://www.baidu.com');
+    (async function example() {
+        let driver = await new Builder().forBrowser('chrome').build();
+        try {
+            // Navigate to Url
+            await driver.get('https://adnet.qq.com/placement/list');
+            await driver.switchTo().frame(driver.findElement( By.id("ptlogin_iframe")));
+            let sw = await driver.wait(until.elementLocated( By.className('switcher_plogin'), 1000));
+            await sw.click();
+            // browser.find_element_by_id('u').send_keys('2304724890');
+            // browser.find_element_by_id('p').send_keys('gdcm84479855');
+            // browser.find_element_by_id('u').send_keys('360530020');
+            // browser.find_element_by_id('p').send_keys('xilu123$%^&');
+            // browser.find_element_by_id('u').send_keys('3278166907');
+            // browser.find_element_by_id('p').send_keys('gdcm84479855');
+            await driver.findElement( By.id("u")).sendKeys('1241554103');
+            await driver.findElement( By.id("p")).sendKeys('gdcm84479855');
+            await driver.findElement( By.id("login_button")).click();
+
+            await driver.switchTo().defaultContent();
+
+            await driver.wait( until.elementLocated( By.className('form-control'), 100000));
+            let  search = await driver.findElement( By.className('form-control'));
+            await search.sendKeys('TBS渠道6');
+            await search.sendKeys( Key.ENTER);
+        }
+        finally{
+            driver.quit();
+        }
+    })();
+
+
+
+    event.reply('asynchronous-reply', {placement_id:123,app_id:'yioyio',name:'接待室里看风景阿卡丽'});
     return;
 });
 
@@ -16,8 +47,8 @@ const debug = /--debug/.test(process.argv[2]);
 function createWindow() {
     // Create the browser window.
     const mainWindow = new BrowserWindow({
-        width: 1600,
-        height: 900,
+        width: 160*5,
+        height: 90*5,
         webPreferences: {
             nodeIntegration: true,
             // enableRemoteModule: false,
@@ -32,7 +63,7 @@ function createWindow() {
     } else {
         mainWindow.loadFile('./dist/index.html');
     }
-    mainWindow.maximize();
+    // mainWindow.maximize();
 
 
     // mainWindow.loadURL('http://localhost:8080/')

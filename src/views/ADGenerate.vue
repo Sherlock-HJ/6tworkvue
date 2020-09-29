@@ -10,14 +10,14 @@
                     <span slot="prepend">密码</span>
                 </Input>
                 <Input v-model="channelName" placeholder="广告名称前缀（或是渠道名）">
-                <Select v-model="platform" slot="prepend" style="width: 80px">
-                    <Option value="adnet">优亮汇</Option>
-                    <Option value="baidu">百度</Option>
-                    <Option value="sogou">搜狗</Option>
+                    <Select v-model="platform" slot="prepend" style="width: 80px">
+                        <Option value="adnet">优亮汇</Option>
+                        <Option value="baidu">百度</Option>
+                        <Option value="sogou">搜狗</Option>
 
-                </Select>
+                    </Select>
 
-                <Button slot="append" @click="prepareAction" type="primary">预创建</Button>
+                    <Button slot="append" @click="prepareAction" type="primary">预创建</Button>
 
                 </Input>
 
@@ -54,7 +54,8 @@
 
 <script>
     import ADLocation from "../components/ADLocation";
-    import {clipboard,ipcRenderer } from "electron";
+    import {clipboard, ipcRenderer} from "electron";
+
     export default {
         name: "ADGenerate",
         components: {ADLocation},
@@ -65,16 +66,15 @@
                 channelName: '',
                 prepareStr: '',
                 adLocs: [],
-                account:'',
-                pwd:'',
-                model:null,
-                mtid:null
+                account: '',
+                pwd: '',
+                model: null,
+                mtid: null
 
             }
         },
         methods: {
             createAction() {
-                alert('jklajsdlkf;a');
 
                 if (!this.model) {
                     this.$Message.warning('请选择创建模式（追加/覆盖）');
@@ -105,26 +105,26 @@
                     for (let num = obj.start; num <= obj.stop; num++) {
                         let type = '';
                         if (this.platform === 'adnet') {
-                            type = ','+this.adnetType(num,obj.seg);
+                            type = ',' + this.adnetType(num, obj.seg);
                         }
-                        prepareArr.push(this.channelName + obj.text + num +type);
+                        prepareArr.push(this.channelName + obj.text + num + type);
                     }
                 });
                 this.prepareStr = prepareArr.join('\n')
 
             },
-            adnetType(num,seg){
-                if (num <= seg){
+            adnetType(num, seg) {
+                if (num <= seg) {
                     return 10;
                 }
                 let r = Math.floor(Math.random() * 3);
-                if (r === 0){
+                if (r === 0) {
                     return 4;
                 }
-                if (r === 1){
+                if (r === 1) {
                     return 10;
                 }
-                if (r === 2){
+                if (r === 2) {
                     return 9;
                 }
             }
@@ -133,6 +133,25 @@
             this.errorNum = 0;
             this.closeNum = 0;
 
+            this.$db.transaction((tx) => {
+                tx.executeSql('DROP TABLE adnet ');
+
+                tx.executeSql('CREATE TABLE IF NOT EXISTS adnet (placement_id unique, app_id, name)');
+            });
+
+            ipcRenderer.on('asynchronous-reply', (event, arg) => {
+                let sql = `INSERT INTO adnet (placement_id, app_id, name) VALUES ("${arg.placement_id}","${arg.app_id}", "${arg.name}")`;
+                alert(sql);
+                this.$db.transaction((tx) => {
+                    tx.executeSql(sql,[],(transaction,resultSet)=>{
+                        console.log(transaction);
+                        console.log(resultSet);
+                    },(transaction,error)=>{
+                        console.log(transaction);
+                        console.log(error);
+                    });
+                });
+            })
 
         },
         destroyed() {
