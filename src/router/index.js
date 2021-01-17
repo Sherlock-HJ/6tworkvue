@@ -8,7 +8,7 @@ Vue.use(VueRouter);
 const routes = [
   {
     path:'/',
-    redirect: '/check-site'
+    redirect: '/ad-generate'
   },
   {
     path: '/login',

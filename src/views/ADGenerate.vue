@@ -66,8 +66,8 @@
                 channelName: '',
                 prepareStr: '',
                 adLocs: [],
-                account: '',
-                pwd: '',
+                account: '1241554103',
+                pwd: 'gdcm84479855',
                 model: null,
                 mtid: null
 
