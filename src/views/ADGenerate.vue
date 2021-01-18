@@ -107,6 +107,7 @@
                         if (this.platform === 'adnet') {
                             type = ',' + this.adnetType(num, obj.seg);
                         }
+                        type += ',1';
                         prepareArr.push(this.channelName + obj.text + num + type);
                     }
                 });

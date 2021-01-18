@@ -4,8 +4,8 @@ const {app, BrowserWindow, ipcMain} = require('electron');
 
 ipcMain.on('asynchronous-message', (event, arg) => {
     const driv =  require('./drivers');
-    driv.open(arg);
-
+    // driv.open(arg).then();
+    driv.open(arg)
     event.reply('asynchronous-reply', {placement_id:123,app_id:'yioyio',name:'接待室里看风景阿卡丽'});
     return;
 });
