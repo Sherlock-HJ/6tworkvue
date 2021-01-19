@@ -78,8 +78,13 @@ exports.launch = async (obj) => {
             await createAd(driver,obj.adnames[i]);
         }
 
-    } finally {
-        driver.sleep(10000);
+    }
+    catch (e) {
+        await driver.executeScript("alert('出错 10秒后退出，也可自行关闭');", );
+        await driver.sleep(8);
+    }
+    finally {
+        await driver.sleep(2);
         driver.quit();
     }
 };
