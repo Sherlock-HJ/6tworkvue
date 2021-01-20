@@ -1,19 +1,8 @@
-// Modules to control application life and create native browser window
-const sqlite3 = require('sqlite3');
-const { open } = require('sqlite');
-
 const {app, BrowserWindow, ipcMain} = require('electron');
+
 
 ipcMain.on('asynchronous-message', (event, arg) => {
 
-    open({
-        filename: 'database.db',
-        driver: sqlite3.Database
-    }).then((db) => {
-        // do your thing
-    });
-
-    return;
     const driv =  require('./drivers');
     // driv.open(arg).then();
     driv.open(arg)
