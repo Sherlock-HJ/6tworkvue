@@ -5,12 +5,12 @@ const {createWindow,mainWindow} = require('./main_window');
 const cache = require('./cache/adnetCache');
 const cache2 = require('./cache/adnetCache');
 console.log(cache === cache2);
-cache.insert({type:'4567jkdhsfjk'}).then(()=>{
-    console.log('插入了');
-    return cache.select({});
-}).then(result=>{
-    console.log(result);
-});
+// cache.insert({type:'4567jkdhsfjk'}).then(()=>{
+//     console.log('插入了');
+//     return cache.select({});
+// }).then(result=>{
+//     console.log(result);
+// });
 
 ipcMain.on('asynchronous-message', (event, arg) => {
 

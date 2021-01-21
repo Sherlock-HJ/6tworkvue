@@ -11,7 +11,7 @@
 module.exports = {
     publicPath: '',
     productionSourceMap: false,
-    outputDir: 'dist',
+    outputDir: '../app/dist',
 
     devServer: {
         proxy: {

@@ -2,12 +2,9 @@
   "name": "6twork",
   "version": "0.1.0",
   "private": true,
-  "main": "app.js",
   "scripts": {
-    "start": "electron .  --debug",
-    "startwin": "chcp 65001 && electron .  --debug",
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build && electron-packager . --overwrite",
+    "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
@@ -16,9 +13,6 @@
     "js-cookie": "^2.2.1",
     "js-md5": "^0.7.3",
     "qs": "^6.9.1",
-    "selenium-webdriver": "^4.0.0-alpha.7",
-    "sqlite": "^4.0.19",
-    "sqlite3": "^5.0.1",
     "stylus-loader": "^3.0.2",
     "view-design": "^4.0.2",
     "vue": "^2.6.10",
@@ -33,7 +27,6 @@
     "babel-eslint": "^10.0.3",
     "babel-plugin-import": "^1.13.0",
     "electron": "^11.2.0",
-    "electron-packager": "^15.1.0",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
     "less": "^3.0.4",

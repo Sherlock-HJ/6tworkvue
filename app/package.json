@@ -1,0 +1,30 @@
+{
+  "name": "6twork",
+  "version": "0.1.0",
+  "private": true,
+  "main": "app.js",
+  "scripts": {
+    "start": "electron .  --debug",
+    "startwin": "chcp 65001 && electron .  --debug",
+    "build": "electron-packager . --overwrite"
+  },
+  "dependencies": {
+    "selenium-webdriver": "^4.0.0-alpha.7",
+    "sqlite": "^4.0.19",
+    "sqlite3": "^5.0.1"
+  },
+  "devDependencies": {
+    "electron": "^11.2.0",
+    "electron-packager": "^15.1.0"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ]
+}
