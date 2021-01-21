@@ -141,17 +141,7 @@
             });
 
             ipcRenderer.on('asynchronous-reply', (event, arg) => {
-                let sql = `INSERT INTO adnet (placement_id, app_id, name) VALUES ("${arg.placement_id}","${arg.app_id}", "${arg.name}")`;
-                alert(sql);
-                this.$db.transaction((tx) => {
-                    tx.executeSql(sql,[],(transaction,resultSet)=>{
-                        console.log(transaction);
-                        console.log(resultSet);
-                    },(transaction,error)=>{
-                        console.log(transaction);
-                        console.log(error);
-                    });
-                });
+              console.log(arg);
             })
 
         },

@@ -1,6 +1,7 @@
 .DS_Store
 node_modules
 /dist
+/6twork-darwin-x64
 
 # local env files
 .env.local

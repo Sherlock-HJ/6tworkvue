@@ -1,6 +1,6 @@
 const sqlite3 = require('sqlite3');
 const {open} = require('sqlite');
-
+const app = require('../app');
 let singletonDb = null;
 
 async function openDb() {
@@ -33,7 +33,7 @@ async function insert(obj) {
 }
 
 async function select(obj) {
-
+    console.log(app);
     if (!obj) return ;
 
     const db = await openDb();
@@ -41,12 +41,8 @@ async function select(obj) {
     const result = await db.all('SELECT * FROM tbl');
     return  result;
 }
+module.exports = {insert, select};
 
-insert({type:'4567jkdhsfjk'}).then(()=>{
-    console.log('插入了');
-    return select({});
-}).then(result=>{
-    console.log(result);
-});
+
 
 

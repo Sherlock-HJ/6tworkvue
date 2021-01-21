@@ -1,7 +1,11 @@
 const {Builder,WebElement, By, Key, until} = require('selenium-webdriver');
-const {Options} = require('selenium-webdriver/chrome');
+const {Options,ServiceBuilder,} = require('selenium-webdriver/chrome');
+const {mainWindow} = require('../main_window');
+
 
 const init = async() => {
+    mainWindow().webContents.send('asynchronous-reply',
+        {placement_id:123,app_id:'yioyio',name:'初始化'});
     const builder = new Builder();
     const opt = new Options();
     opt.windowSize({width:1200,height:800});
