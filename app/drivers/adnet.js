@@ -1,14 +1,12 @@
 const {Builder,WebElement, By, Key, until} = require('selenium-webdriver');
 const {Options,ServiceBuilder,} = require('selenium-webdriver/chrome');
-const {mainWindow} = require('../main_window');
+// const {mainWindow} = require('../main_window');
 
 
 const init = async() => {
-    mainWindow().webContents.send('asynchronous-reply',
-        {placement_id:123,app_id:'yioyio',name:'初始化'});
     const builder = new Builder();
     const opt = new Options();
-    opt.windowSize({width:1200,height:800});
+    opt.windowSize({width:1300,height:800});
     builder.setChromeOptions(opt);
     const driver = await builder.forBrowser('chrome').build();
     return  driver;
@@ -71,16 +69,35 @@ const createAd = async(driver,str) => {
 
 };
 
+const getAd = async(driver,str) =>{
+    let nextPage = await driver.wait(until.elementLocated(By.linkText('下一页')));
+    await driver.wait(until.elementIsEnabled(nextPage));
+
+    const trBy = By.css('tr');
+    await driver.wait(until.elementLocated(trBy));
+    let trs =  await driver.findElements(trBy);
+
+    for (const trByKey in trs) {
+        console.log(await obj.getText());
+    }
+
+
+};
+
 exports.launch = async (obj) => {
 
     const driver = await init();
 
     try {
         await login(driver,obj);
-
-        for (let i = 0 ; i< obj.adnames.length; i++){
-            await createAd(driver,obj.adnames[i]);
+        if (obj.model === 'add'){
+            for (let i = 0 ; i< obj.adnames.length; i++){
+                await createAd(driver,obj.adnames[i]);
+            }
+        }else if (obj.model === 'get'){
+            await getAd(driver);
         }
+
 
     }
     catch (e) {
