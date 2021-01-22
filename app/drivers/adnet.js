@@ -77,9 +77,18 @@ const getAd = async(driver,str) =>{
     await driver.wait(until.elementLocated(trBy));
     let trs =  await driver.findElements(trBy);
 
-    for (const trByKey in trs) {
-        console.log(await obj.getText());
+    console.log('kjk');
+
+    try {
+        for (let idx=0;idx< trs.length; idx++) {
+            const dfd = await trs[idx].getText();
+            console.log(dfd);
+            console.log('kjk');
+        }
+    }catch (e) {
+        console.log(e);
     }
+
 
 
 };
@@ -98,14 +107,13 @@ exports.launch = async (obj) => {
             await getAd(driver);
         }
 
-
     }
     catch (e) {
         await driver.executeScript("alert('出错 10秒后退出，也可自行关闭');", );
         await driver.sleep(8);
     }
     finally {
-        await driver.sleep(2);
+        await driver.sleep(20);
         driver.quit();
     }
 };
