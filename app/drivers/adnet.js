@@ -1,18 +1,19 @@
-const {Builder,WebElement, By, Key, until} = require('selenium-webdriver');
-const {Options,ServiceBuilder,} = require('selenium-webdriver/chrome');
+const {Builder, WebElement, By, Key, until} = require('selenium-webdriver');
+const {Options, ServiceBuilder,} = require('selenium-webdriver/chrome');
 // const {mainWindow} = require('../main_window');
+const fs = require('fs');
+const Whj = require('../secret');
 
-
-const init = async() => {
+const init = async () => {
     const builder = new Builder();
     const opt = new Options();
-    opt.windowSize({width:1300,height:800});
+    opt.windowSize({width: 1300, height: 800});
     builder.setChromeOptions(opt);
     const driver = await builder.forBrowser('chrome').build();
-    return  driver;
+    return driver;
 };
 
-const login = async(driver,obj) => {
+const login = async (driver, obj) => {
     // Navigate to Url
     await driver.get('https://adnet.qq.com/placement/list');
 
@@ -29,7 +30,7 @@ const login = async(driver,obj) => {
     await driver.switchTo().defaultContent();
 };
 
-const createAd = async(driver,str) => {
+const createAd = async (driver, str) => {
     const params = str.split(',');
     let segu = params[2];
     let idx = params[1];
@@ -37,18 +38,18 @@ const createAd = async(driver,str) => {
     // 等待 ]新建广告位]按钮出现 并点击
     await driver.wait(until.elementLocated(By.linkText('新建广告位'))).click();
     //等待  [选择媒体]出现  并点击
-    let xpath =  '//div[@class="selection-container selection-container-single with-search"]';
+    let xpath = '//div[@class="selection-container selection-container-single with-search"]';
     await driver.wait(until.elementLocated(By.xpath(xpath))).click();
     //【选择媒体】 TODO:这里要动态配置
-    xpath =  '//ul[@class="selection-results"]/li[@class="selection-info"][3]';
+    xpath = '//ul[@class="selection-results"]/li[@class="selection-info"][3]';
     await driver.findElement(By.xpath(xpath)).click();
     //选择  【广告场景】
     xpath = `//ul[@class="union-card-list list-contain-4"]/li[@class="union-card-item"][${segu}]`;
     await driver.findElement(By.xpath(xpath)).click();
     //选择 [广告样式]
-    if (segu === '1'){
+    if (segu === '1') {
         xpath = `//ul[@class="union-card-list card-list-dtxxl list-contain-2"]/li[${idx}]`;
-    }else if (segu === '4'){
+    } else if (segu === '4') {
         xpath = `//ul[@class="union-card-list card-list-cp list-contain-2"]/li[${idx}]`;
     }
     await driver.findElement(By.xpath(xpath)).click();
@@ -69,27 +70,46 @@ const createAd = async(driver,str) => {
 
 };
 
-const getAd = async(driver,str) =>{
+const getAd = async (driver, file,obj) => {
     let nextPage = await driver.wait(until.elementLocated(By.linkText('下一页')));
     await driver.wait(until.elementIsEnabled(nextPage));
+    await driver.wait(until.elementIsVisible(nextPage));
 
     const trBy = By.css('tr');
     await driver.wait(until.elementLocated(trBy));
-    let trs =  await driver.findElements(trBy);
-
-    console.log('kjk');
+    let trs = await driver.findElements(trBy);
 
     try {
-        for (let idx=0;idx< trs.length; idx++) {
-            const dfd = await trs[idx].getText();
-            console.log(dfd);
-            console.log('kjk');
+
+        for (let idx = 0; idx < trs.length; idx++) {
+            let dfd = await trs[idx].getText();
+            dfd = dfd.replace(/\n/g,',');
+            if (/广告位,广告位类型,所属媒体/.test(dfd)) {
+                console.log('忽略');
+                continue;
+            }
+            let arr =  dfd.split(',');
+            arr[1] = arr[1].slice(3);
+            arr[4] = arr[4].slice(3);
+            arr = arr.slice(0,5);
+
+            arr.push(obj.account);
+            arr.push( obj.account + '_' + arr[4] + '_' + arr[1]);
+            dfd = arr.map(str=>{
+                return Whj.encrypt(str);
+            }).join(',');
+
+            fs.writeFile(file, dfd+'\n', {
+                encoding: 'utf8',
+                flag:'a'
+            }, err => {
+                console.log(err);
+            });
         }
-    }catch (e) {
+    } catch (e) {
         console.log(e);
     }
-
-
+    await nextPage.click();
 
 };
 
@@ -98,21 +118,29 @@ exports.launch = async (obj) => {
     const driver = await init();
 
     try {
-        await login(driver,obj);
-        if (obj.model === 'add'){
-            for (let i = 0 ; i< obj.adnames.length; i++){
-                await createAd(driver,obj.adnames[i]);
+        await login(driver, obj);
+        if (obj.model === 'add') {
+            for (let i = 0; i < obj.adnames.length; i++) {
+                await createAd(driver, obj.adnames[i]);
             }
-        }else if (obj.model === 'get'){
-            await getAd(driver);
+        } else if (obj.model === 'get') {
+            let file = './'+obj.account+'.csv';
+            let header = "placement_name,placement_id,type,app_name,app_id,account,aapid\n";
+            fs.writeFile(file, header, {
+                encoding: 'utf8',
+                flag:'a'
+            }, err => {
+                console.log(err);
+            });
+            while (true){
+                 await getAd(driver,file,obj);
+            }
         }
 
-    }
-    catch (e) {
-        await driver.executeScript("alert('出错 10秒后退出，也可自行关闭');", );
+    } catch (e) {
+        await driver.executeScript("alert('出错 10秒后退出，也可自行关闭');",);
         await driver.sleep(8);
-    }
-    finally {
+    } finally {
         await driver.sleep(20);
         driver.quit();
     }

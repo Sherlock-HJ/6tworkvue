@@ -9,9 +9,8 @@
     "build": "electron-packager . --overwrite"
   },
   "dependencies": {
-    "selenium-webdriver": "^4.0.0-alpha.7",
-    "sqlite": "^4.0.19",
-    "sqlite3": "^5.0.1"
+    "hydrogen-js-sdk": "^2.2.4",
+    "selenium-webdriver": "^4.0.0-alpha.7"
   },
   "devDependencies": {
     "electron": "^11.2.0",
