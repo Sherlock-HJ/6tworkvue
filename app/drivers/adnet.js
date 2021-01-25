@@ -70,7 +70,7 @@ const createAd = async (driver, str) => {
 
 };
 
-const getAd = async (driver, file,obj) => {
+const getAd = async (driver, file, obj) => {
     let nextPage = await driver.wait(until.elementLocated(By.linkText('下一页')));
     await driver.wait(until.elementIsEnabled(nextPage));
     await driver.wait(until.elementIsVisible(nextPage));
@@ -83,25 +83,25 @@ const getAd = async (driver, file,obj) => {
 
         for (let idx = 0; idx < trs.length; idx++) {
             let dfd = await trs[idx].getText();
-            dfd = dfd.replace(/\n/g,',');
+            dfd = dfd.replace(/\n/g, ',');
             if (/广告位,广告位类型,所属媒体/.test(dfd)) {
                 console.log('忽略');
                 continue;
             }
-            let arr =  dfd.split(',');
+            let arr = dfd.split(',');
             arr[1] = arr[1].slice(3);
             arr[4] = arr[4].slice(3);
-            arr = arr.slice(0,5);
+            arr = arr.slice(0, 5);
 
             arr.push(obj.account);
-            arr.push( obj.account + '_' + arr[4] + '_' + arr[1]);
-            dfd = arr.map(str=>{
+            arr.push(obj.account + '_' + arr[4] + '_' + arr[1]);
+            dfd = arr.map(str => {
                 return Whj.encrypt(str);
             }).join(',');
 
-            fs.writeFile(file, dfd+'\n', {
+            fs.writeFile(file, dfd + '\n', {
                 encoding: 'utf8',
-                flag:'a'
+                flag: 'a'
             }, err => {
                 console.log(err);
             });
@@ -113,29 +113,63 @@ const getAd = async (driver, file,obj) => {
 
 };
 
-exports.launch = async (obj) => {
+const cacheAd = async (driver, obj) => {
+    //创建本地暂存文件
+    let date = new Date();
+    let time = '' + date.getFullYear() + '-' +
+        (date.getMonth() + 1) + '-' +
+        date.getDate() + '_' +
+        date.getHours() + '-' +
+        date.getMinutes() + '-' +
+        date.getSeconds();
+    let file = './cache/' + obj.account + "_" + time + '.csv';
+    let header = "placement_name,placement_id,type,app_name,app_id,account,aapid\n";
+    fs.writeFile(file, header, {
+        encoding: 'utf8',
+        flag: 'a'
+    }, err => {
+        console.log(err);
+    });
+
+    //按页获取已创建好的广告存储到本地
+    const len = Math.ceil(obj.adnames.length / 20.0);
+    for (let i = 0; i < len; i++) {
+        await getAd(driver, file, obj);
+    }
+};
+
+const launchCacheAd = async (obj) => {
+    const driver = await init();
+
+    try {
+        //登录
+        await login(driver, obj);
+        //按页获取已创建好的广告存储到本地
+        await cacheAd(driver, obj);
+    } catch (e) {
+        await driver.executeScript("alert('出错 10秒后退出，也可自行关闭');",);
+        await driver.sleep(8);
+    } finally {
+        await driver.sleep(20);
+        driver.quit();
+    }
+};
+
+const launch = async (obj) => {
 
     const driver = await init();
 
     try {
+        //登录
         await login(driver, obj);
-        if (obj.model === 'add') {
-            for (let i = 0; i < obj.adnames.length; i++) {
-                await createAd(driver, obj.adnames[i]);
-            }
-        } else if (obj.model === 'get') {
-            let file = './'+obj.account+'.csv';
-            let header = "placement_name,placement_id,type,app_name,app_id,account,aapid\n";
-            fs.writeFile(file, header, {
-                encoding: 'utf8',
-                flag:'a'
-            }, err => {
-                console.log(err);
-            });
-            while (true){
-                 await getAd(driver,file,obj);
-            }
+
+        //逐条创建广告
+        for (let i = 0; i < obj.adnames.length; i++) {
+            await createAd(driver, obj.adnames[i]);
         }
+
+        //按页获取已创建好的广告存储到本地
+        await cacheAd(driver, obj);
 
     } catch (e) {
         await driver.executeScript("alert('出错 10秒后退出，也可自行关闭');",);
@@ -145,4 +179,6 @@ exports.launch = async (obj) => {
         driver.quit();
     }
 };
+
+module.exports = {launch, launchCacheAd};
 
