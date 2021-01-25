@@ -1,8 +1,8 @@
 const {Builder, WebElement, By, Key, until} = require('selenium-webdriver');
 const {Options, ServiceBuilder,} = require('selenium-webdriver/chrome');
 // const {mainWindow} = require('../main_window');
+const cache = require('../cache/cache');
 const fs = require('fs');
-const Whj = require('../secret');
 
 const init = async () => {
     const builder = new Builder();
@@ -71,46 +71,68 @@ const createAd = async (driver, str) => {
 };
 
 const getAd = async (driver, file, obj) => {
-    let nextPage = await driver.wait(until.elementLocated(By.linkText('下一页')));
-    await driver.wait(until.elementIsEnabled(nextPage));
-    await driver.wait(until.elementIsVisible(nextPage));
-
-    const trBy = By.css('tr');
-    await driver.wait(until.elementLocated(trBy));
-    let trs = await driver.findElements(trBy);
-
     try {
+        更改这个条件
+        let countPage = await driver.wait(until.elementLocated(By.css('.pagination')));
+        await driver.wait(until.elementIsEnabled(countPage));
+        await driver.wait(until.elementIsVisible(countPage));
 
-        for (let idx = 0; idx < trs.length; idx++) {
-            let dfd = await trs[idx].getText();
-            dfd = dfd.replace(/\n/g, ',');
-            if (/广告位,广告位类型,所属媒体/.test(dfd)) {
-                console.log('忽略');
-                continue;
+        console.log(countPage);
+        const trBy = By.css('tr');
+        await driver.wait(until.elementLocated(trBy));
+        let trs = await driver.findElements(trBy);
+        console.log(trs);
+        try {
+
+            for (let idx = 0; idx < trs.length; idx++) {
+                let dfd = await trs[idx].getText();
+                dfd = dfd.replace(/\n/g, ',');
+                if (/广告位,广告位类型,所属媒体/.test(dfd)) {
+                    console.log('忽略');
+                    continue;
+                }
+                let arr = dfd.split(',');
+                arr[1] = arr[1].slice(3);
+                arr[4] = arr[4].slice(3);
+                arr = arr.slice(0, 5);
+
+                arr.push(obj.account);
+                arr.push(obj.account + '_' + arr[4] + '_' + arr[1]);
+                dfd = arr.join(',');
+
+                fs.writeFile(file, dfd + '\n', {
+                    encoding: 'utf8',
+                    flag: 'a'
+                }, err => {
+                    console.log(err);
+                });
             }
-            let arr = dfd.split(',');
-            arr[1] = arr[1].slice(3);
-            arr[4] = arr[4].slice(3);
-            arr = arr.slice(0, 5);
-
-            arr.push(obj.account);
-            arr.push(obj.account + '_' + arr[4] + '_' + arr[1]);
-            dfd = arr.map(str => {
-                return Whj.encrypt(str);
-            }).join(',');
-
-            fs.writeFile(file, dfd + '\n', {
-                encoding: 'utf8',
-                flag: 'a'
-            }, err => {
-                console.log(err);
-            });
+        } catch (e) {
+            console.log(e);
         }
-    } catch (e) {
+    }catch (e) {
         console.log(e);
     }
-    await nextPage.click();
 
+
+
+    //是否是最后一页
+    let page = await driver.findElement(By.css('.pagination .active')).getText();
+    console.log(page);
+
+    let count = await driver.findElement(By.css('.pagination .count')).getText();
+    console.log(count);
+
+    if (count == `共${page}页`){
+        return  true;
+    }else {
+        let nextPage = await driver.wait(until.elementLocated(By.linkText('下一页')));
+        await driver.wait(until.elementIsEnabled(nextPage));
+        await driver.wait(until.elementIsVisible(nextPage));
+        await nextPage.click();
+
+        return false;
+    }
 };
 
 const cacheAd = async (driver, obj) => {
@@ -134,8 +156,32 @@ const cacheAd = async (driver, obj) => {
     //按页获取已创建好的广告存储到本地
     const len = Math.ceil(obj.adnames.length / 20.0);
     for (let i = 0; i < len; i++) {
-        await getAd(driver, file, obj);
+       let isDone = await getAd(driver, file, obj);
+       if (isDone) break;
     }
+    return;
+    //上传到bmob
+    fs.readFile(file,'utf8', (err, data) => {
+        if (err) {
+            return console.error(err);
+        }
+        let str = data.toString();
+        let arr = str.split('\n');
+        let keys = arr[0].split(',');
+        arr = arr.slice(1);
+
+        let arr2 = [];
+        arr.forEach(row=>{
+
+            let obj = {};
+            let rowValues = row.split(',');
+            for (let num = 0; num < keys.length; num++) {
+                obj[keys[num]] = rowValues[num];
+            }
+            arr2.push(obj);
+        });
+        cache.adnetInsert(arr2);
+    });
 };
 
 const launchCacheAd = async (obj) => {
@@ -168,7 +214,7 @@ const launch = async (obj) => {
             await createAd(driver, obj.adnames[i]);
         }
 
-        //按页获取已创建好的广告存储到本地
+        //按页获取已创建好的广告存储到本地 并上传bmob
         await cacheAd(driver, obj);
 
     } catch (e) {
