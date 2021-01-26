@@ -10,22 +10,33 @@ Bmob.debug(debug);
 Bmob.initialize("4805f4f0a0b329e5", "Qw68@#");
 
 async function adnetInsert(objs) {
-    const queryArray = new Array();
-// 构造含有50个对象的数组
-    for(var i = 0 ; i < 50 ; i++){
+
+    let queryArray = [];
+    objs.forEach(obj => {
+
         var queryObj = Bmob.Query('adnet_qq_com');
-        queryObj.set('columnName','abc' + i);
+        for (const key in obj) {
+            queryObj.set(key, Whj.encrypt(obj[key]));
+        }
         queryArray.push(queryObj);
+    });
+
+    let groups = [];
+    // 构造含有 最多 50个对象的数组
+    for (let i = 0; i < Math.ceil(queryArray.length / 50.0); i++) {
+        groups.push(queryArray.slice(i * 50, i * 50 + 50))
+    }
+// 传入刚刚构造的数组
+    for (let num = 0; num < groups.length; num++) {
+        const res = await Bmob.Query('adnet_qq_com').saveAll(groups[num]);
+        console.log(res);
     }
 
 
-// 传入刚刚构造的数组
-   const res = await Bmob.Query('adnet_qq_com').saveAll(queryArray);
-    console.log(res);
 }
 
 async function adnetSelect(obj) {
-    let keys =  [ "placement_name",
+    let keys = ["placement_name",
         "placement_id",
         "type",
         "app_name",
@@ -33,23 +44,23 @@ async function adnetSelect(obj) {
         "account",
         "aapid"]
     const query = Bmob.Query('adnet_qq_com');
-    query.equalTo("account", "==", Whj.encrypt('1721607613'));
+    query.equalTo("account", "==", Whj.encrypt('360530020'));
     query.limit(10);
     let res = await query.find();
-    res = res.map(obj=>{
+    res = res.map(obj => {
         let obj2 = {};
         for (const key in obj) {
             obj2[key] = keys.find(value => {
                 return key === value;
-            })?Whj.decrypt(obj[key]):obj[key];
+            }) ? Whj.decrypt(obj[key]) : obj[key];
         }
-
         return obj2;
     });
 
     return res;
 
 }
+
 module.exports = {adnetInsert, adnetSelect};
 
 

@@ -15,6 +15,7 @@ class Whj {
      * @return {string}
      */
     static decrypt(dataStr) {
+        if (dataStr.length === 0) {return '';}
         dataStr = dataStr.split('').map(a=>{
             return a.toUpperCase(a)==a?a.toLowerCase():a.toUpperCase();
         }).join('');
@@ -29,6 +30,7 @@ class Whj {
      * @return {string}
      */
     static encrypt(dataStr) {
+        if (dataStr.length === 0) {return '';}
         const buf = Buffer.from(dataStr,_plain);
         return  buf.toString(_cipher).split('').map(a=>{
             return a.toUpperCase(a)==a?a.toLowerCase():a.toUpperCase();

@@ -72,16 +72,14 @@ const createAd = async (driver, str) => {
 
 const getAd = async (driver, file, obj) => {
     try {
-        更改这个条件
         let countPage = await driver.wait(until.elementLocated(By.css('.pagination')));
         await driver.wait(until.elementIsEnabled(countPage));
         await driver.wait(until.elementIsVisible(countPage));
 
-        console.log(countPage);
         const trBy = By.css('tr');
         await driver.wait(until.elementLocated(trBy));
         let trs = await driver.findElements(trBy);
-        console.log(trs);
+
         try {
 
             for (let idx = 0; idx < trs.length; idx++) {
@@ -123,16 +121,47 @@ const getAd = async (driver, file, obj) => {
     let count = await driver.findElement(By.css('.pagination .count')).getText();
     console.log(count);
 
-    if (count == `共${page}页`){
+    const pageFlag = `共${page}页`;
+    if (count === pageFlag){
         return  true;
     }else {
-        let nextPage = await driver.wait(until.elementLocated(By.linkText('下一页')));
-        await driver.wait(until.elementIsEnabled(nextPage));
-        await driver.wait(until.elementIsVisible(nextPage));
-        await nextPage.click();
+        try {
+            let nextPage = await driver.wait(until.elementLocated(By.linkText('下一页')));
+            await driver.wait(until.elementIsEnabled(nextPage));
+            await driver.wait(until.elementIsVisible(nextPage));
+            await nextPage.click();
+        }catch (e) {
+            console.log(e);
+        }
 
         return false;
     }
+};
+const uploadBmob = async (file) => {
+    //上传到bmob
+    fs.readFile(file,'utf8', (err, data) => {
+        if (err) {
+            return console.error(err);
+        }
+        let str = data.toString();
+        let arr = str.split('\n');
+        let keys = arr[0].split(',');
+        arr = arr.slice(1);
+
+        let arr2 = [];
+        arr.forEach(row=>{
+            if (row.length > 0 ) {
+                let obj = {};
+                let rowValues = row.split(',');
+                for (let num = 0; num < keys.length; num++) {
+                    obj[keys[num]] = rowValues[num];
+                }
+                arr2.push(obj);
+            }
+        });
+        // console.log(arr2);
+        cache.adnetInsert(arr2);
+    });
 };
 
 const cacheAd = async (driver, obj) => {
@@ -159,29 +188,10 @@ const cacheAd = async (driver, obj) => {
        let isDone = await getAd(driver, file, obj);
        if (isDone) break;
     }
-    return;
+
     //上传到bmob
-    fs.readFile(file,'utf8', (err, data) => {
-        if (err) {
-            return console.error(err);
-        }
-        let str = data.toString();
-        let arr = str.split('\n');
-        let keys = arr[0].split(',');
-        arr = arr.slice(1);
+    uploadBmob(file);
 
-        let arr2 = [];
-        arr.forEach(row=>{
-
-            let obj = {};
-            let rowValues = row.split(',');
-            for (let num = 0; num < keys.length; num++) {
-                obj[keys[num]] = rowValues[num];
-            }
-            arr2.push(obj);
-        });
-        cache.adnetInsert(arr2);
-    });
 };
 
 const launchCacheAd = async (obj) => {
@@ -226,5 +236,5 @@ const launch = async (obj) => {
     }
 };
 
-module.exports = {launch, launchCacheAd};
+module.exports = {launch, launchCacheAd,uploadBmob};
 
