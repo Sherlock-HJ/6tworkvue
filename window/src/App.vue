@@ -122,7 +122,9 @@
 
 <style>
 
-
+ #app2{
+    min-width: 1000px;
+ }
     .tip {
         color: #999999;
         font-size: 12px;

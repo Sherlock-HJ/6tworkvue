@@ -31,9 +31,15 @@
 
         </Row>
         <Row>
-            <Input type="textarea"
-                   :rows="20"
-                   v-model="prepareStr"/>
+            <Col span="12">
+                <Input type="textarea"
+                       :rows="20"
+                       v-model="prepareStr"/>
+            </Col>
+            <Col span="12">
+                dfsa
+            </Col>
+
         </Row>
         <Row>
 
@@ -47,6 +53,8 @@
                 </Radio>
             </RadioGroup>
             <Button @click="createAction" type="primary">获取</Button>
+            <Button @click="sqlAdd" type="primary">测试数据库添加数据上限</Button>
+            <Button @click="sqlDel" type="primary">删除</Button>
 
         </Row>
     </div>
@@ -61,7 +69,6 @@
         components: {ADLocation},
         data() {
             return {
-                ws: null,
                 platform: 'adnet',
                 channelName: '',
                 prepareStr: '',
@@ -128,6 +135,51 @@
                 if (r === 2) {
                     return 9;
                 }
+            },
+            sqlDel(){
+                this.$db.transaction(function (tx) {
+                    tx.executeSql('DELETE FROM adnet2  WHERE placement_id="jdslkfjasdfuiosfkj"');
+
+                    tx.executeSql('SELECT placement_id FROM adnet2', [],  (tx, results) =>{
+                        let len = results.rows.length, i;
+                        console.log(len+'条');
+
+                    }, (tx, results) =>{
+                        console.log(tx);
+                        console.log(results);
+
+                    });
+                });
+            },
+            sqlAdd(){
+                console.log('添加数据');
+                this.$db.transaction(function (tx) {
+                    console.log('执行 添加数据');
+                    for (let num = 0; num < 10000; num++){
+                        tx.executeSql('INSERT INTO adnet2 (placement_id,app_id, name1,whj,ui,qwer,account,app_name,yiu) ' +
+                            'VALUES ("jdslkfjasdfuiosfkj", "菜鸟教程", "菜鸟教程", "菜鸟教程", "菜鸟教程", "菜鸟教程", "菜鸟教程", "菜鸟教程", "菜鸟教程")',null,
+                            (t,s)=>{
+                                // console.log(t);
+                                // console.log(s);
+                            },(t,s)=>{
+                            console.log(t);
+                            console.log(s);
+                        });
+                    }
+                    console.log('执行 添加数据 完毕');
+                });
+
+                this.$db.transaction(function (tx) {
+                    tx.executeSql('SELECT placement_id FROM adnet2', [],  (tx, results) =>{
+                        let len = results.rows.length, i;
+                        console.log(len+'条');
+
+                    }, (tx, results) =>{
+                        console.log(tx);
+                        console.log(results);
+
+                    });
+                });
             }
         },
         created() {
@@ -135,9 +187,9 @@
             this.closeNum = 0;
 
             this.$db.transaction((tx) => {
-                tx.executeSql('DROP TABLE adnet ');
+                // tx.executeSql('DROP TABLE adnet2 ');
 
-                tx.executeSql('CREATE TABLE IF NOT EXISTS adnet (placement_id unique, app_id, name)');
+                tx.executeSql('CREATE TABLE IF NOT EXISTS adnet2 (placement_id, app_id, name1,whj,ui,qwer,account,app_name,yiu)');
             });
 
             ipcRenderer.on('asynchronous-reply', (event, arg) => {

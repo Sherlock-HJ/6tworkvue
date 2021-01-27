@@ -40,7 +40,7 @@ const createAd = async (driver, str) => {
     //等待  [选择媒体]出现  并点击
     let xpath = '//div[@class="selection-container selection-container-single with-search"]';
     await driver.wait(until.elementLocated(By.xpath(xpath))).click();
-    //【选择媒体】 TODO:这里要动态配置
+    //【选择媒体】 TODO:这里要动态配置  //span[contains(text(),"1110608203")]
     xpath = '//ul[@class="selection-results"]/li[@class="selection-info"][3]';
     await driver.findElement(By.xpath(xpath)).click();
     //选择  【广告场景】
