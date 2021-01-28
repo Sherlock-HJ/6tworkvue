@@ -5,7 +5,7 @@ let mainWindow = null;
 exports.createWindow = ()=> {
     // Create the browser window.
     mainWindow = new BrowserWindow({
-        width: 160*10,
+        width: 100*10,
         height: 90*10,
         webPreferences: {
             devTools:true,
@@ -21,7 +21,7 @@ exports.createWindow = ()=> {
     } else {
         mainWindow.loadFile('./dist/index.html');
     }
-    mainWindow.maximize();
+    // mainWindow.maximize();
 };
 exports.mainWindow = ()=> {
     return mainWindow;

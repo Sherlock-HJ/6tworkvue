@@ -31,33 +31,33 @@ const login = async (driver, obj) => {
 };
 
 const createAd = async (driver, str) => {
-    const params = str.split(',');
-    let segu = params[2];
-    let idx = params[1];
-    let name = params[0];
-    // 等待 ]新建广告位]按钮出现 并点击
+    const params = str.split('__');
+    let placementName = params[0];
+    let appName = params[1];
+    let scenario = params[2];
+    let style = params[3];
+
+    // 等待 [新建广告位]按钮出现 并点击
     await driver.wait(until.elementLocated(By.linkText('新建广告位'))).click();
     //等待  [选择媒体]出现  并点击
     let xpath = '//div[@class="selection-container selection-container-single with-search"]';
     await driver.wait(until.elementLocated(By.xpath(xpath))).click();
-    //【选择媒体】 TODO:这里要动态配置  //span[contains(text(),"1110608203")]
-    xpath = '//ul[@class="selection-results"]/li[@class="selection-info"][3]';
+    //【选择媒体】
+    xpath = `//span[@class="selection-content name" and contains(text(),"${appName}")]`;
     await driver.findElement(By.xpath(xpath)).click();
     //选择  【广告场景】
-    xpath = `//ul[@class="union-card-list list-contain-4"]/li[@class="union-card-item"][${segu}]`;
+    xpath = `//p[@class="title" and contains(text(),"${scenario}")]`;
     await driver.findElement(By.xpath(xpath)).click();
     //选择 [广告样式]
-    if (segu === '1') {
-        xpath = `//ul[@class="union-card-list card-list-dtxxl list-contain-2"]/li[${idx}]`;
-    } else if (segu === '4') {
-        xpath = `//ul[@class="union-card-list card-list-cp list-contain-2"]/li[${idx}]`;
-    }
+    xpath = `//p[@class="title" and contains(text(),"${style}")]`;
     await driver.findElement(By.xpath(xpath)).click();
     // [输入广告位名称]
     xpath = '//input[@placeholder="限15个汉字或30个字符"]';
     let nameEle = await driver.findElement(By.xpath(xpath));
     await driver.wait(until.elementIsEnabled(nameEle));
-    nameEle.sendKeys(name);
+    nameEle.sendKeys(placementName);
+
+    // await driver.sleep(2000 *1000);
 
     //点击[完成]按钮
     xpath = '//button[@class="union-complete-btn spaui-button spaui-button-primary spaui-component"]';
@@ -204,9 +204,9 @@ const launchCacheAd = async (obj) => {
         await cacheAd(driver, obj);
     } catch (e) {
         await driver.executeScript("alert('出错 10秒后退出，也可自行关闭');",);
-        await driver.sleep(8);
+        await driver.sleep(8 *1000);
     } finally {
-        await driver.sleep(20);
+        await driver.sleep(20 *1000);
         driver.quit();
     }
 };
@@ -228,10 +228,10 @@ const launch = async (obj) => {
         await cacheAd(driver, obj);
 
     } catch (e) {
-        await driver.executeScript("alert('出错 10秒后退出，也可自行关闭');",);
-        await driver.sleep(8);
+        await driver.executeScript(`alert('出错 10秒后退出，也可自行关闭\n${e.error()}');`);
+        await driver.sleep(8 *1000);
     } finally {
-        await driver.sleep(20);
+        await driver.sleep(20 *1000);
         driver.quit();
     }
 };
