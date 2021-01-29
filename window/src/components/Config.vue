@@ -28,6 +28,8 @@
 </template>
 
 <script>
+    import cache from "../lib/cache";
+
     export default {
         name: "Config",
         data() {
@@ -62,21 +64,7 @@
                 reader.onloadend = () => {
                     let arr = reader.result.split('\n');
                     arr.forEach(obj => {
-                        this.$db.transaction(function (tx) {
-
-                            let sql = 'INSERT INTO adnet (aapid,placement_id,type,placement_name,app_name,app_id,account) ' +
-                                'VALUES (?, ?, ?, ?, ?, ?, ?)'
-                            tx.executeSql(sql, obj.split(','), (tx, results) => {
-                                console.log(tx);
-                                console.log(results);
-
-                            }, (tx, results) => {
-                                console.log(tx);
-                                console.log(results);
-
-                            });
-
-                        });
+                        cache.cacheFile(obj.split(','));
                     });
 
                 };

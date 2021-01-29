@@ -1,25 +1,25 @@
 <template>
     <div class="home">
         <nav>
-
             <Menu mode="horizontal" theme="light" :active-name="maName">
-
                 <Row>
                     <Col span="20">
-                        <MenuItem name="/ad" to="/ad">
+                        <MenuItem name="/ad" to="/ad" replace>
                             <Icon type="ios-paper"/>
                             广告列表
                         </MenuItem>
-                        <MenuItem name="/ad-add" to="/ad-add">
+                        <MenuItem name="/ad-add" to="/ad-add" replace>
                             <Icon type="ios-people"/>
                             广告创建
                         </MenuItem>
-                        <MenuItem name="/ad-generate" to="/ad-generate">
+                        <MenuItem name="/ad-generate" to="/ad-generate" replace>
                             <Icon type="ios-people"/>
                             广告生成
                         </MenuItem>
                     </Col>
-                    <Col span="4"><h1>{{$store.state.checkSiteStr}}</h1></Col>
+                    <Col span="4">
+                        <h1 @click="goBack">{{$store.state.checkSiteStr}}</h1>
+                    </Col>
                 </Row>
             </Menu>
 
@@ -45,7 +45,11 @@
                 return this.$route.path;
             }
         },
-        methods: {},
+        methods: {
+            goBack(){
+               this.$router.back();
+            }
+        },
         created() {
 
         }

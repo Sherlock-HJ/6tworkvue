@@ -13,7 +13,6 @@ export default {
     Vue.prototype.$api = axios.create();
     Vue.prototype.$ctrl = axios.create();
     Vue.prototype.$m = methods;
-    Vue.prototype.$db = openDatabase('mydb', '1.0', 'Test DB', 2 * 1024 * 1024* 1024);
 
     // Vue.prototype.$cookie = cookie;
 

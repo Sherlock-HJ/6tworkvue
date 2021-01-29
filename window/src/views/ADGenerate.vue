@@ -3,7 +3,7 @@
         <Row :gutter="16">
 
             <Col span="12">
-                <Select v-model="platform" >
+                <Select v-model="platform" @on-change="loadAdList">
                     <Option v-for="item in platforms" :value="item.key">{{item.name}}</Option>
                 </Select>
                 <Select v-model="account" placeholder="选择账号">
@@ -38,21 +38,34 @@
                        v-model="prepareStr"/>
             </Col>
             <Col span="12">
-                dfsa
+                <Input placeholder="平台广告名查询"
+                       v-model="placementNameSearch"
+                       @on-change="loadAdList"></Input>
+                <Table :columns="adCols" :data="adList"></Table>
+                <Page :current.sync="currentPage"
+                      :page-size="5"
+                      :total="adTotal" @on-change="loadAdList"/>
+
             </Col>
 
         </Row>
         <Row>
+            <Col span="12">
+
             <Button @click="createAction" type="primary">创建</Button>
-                <Radio label="add">
-                    <span>追加</span>
-                </Radio>
-                <Radio label="cover">
-                    <span>覆盖</span>
-                </Radio>
-            <Button @click="createAction" type="primary">获取</Button>
-            <Button @click="sqlAdd" type="primary">测试数据库添加数据上限</Button>
-            <Button @click="sqlDel" type="primary">删除</Button>
+            </Col>
+            <Col span="12">
+                <Input v-model="adName" placeholder="公司广告名查询"></Input>
+                <RadioGroup>
+                    <Radio label="add">
+                        <span>追加</span>
+                    </Radio>
+                    <Radio label="cover">
+                        <span>覆盖</span>
+                    </Radio>
+                </RadioGroup>
+                <Button @click="tianChongClick" type="primary">确定</Button>
+            </Col>
 
         </Row>
     </div>
@@ -62,19 +75,42 @@
     import ADLocation from "../components/ADLocation";
     import {clipboard, ipcRenderer} from "electron";
     import Config from "../components/Config";
+    import cache from "../lib/cache";
+    import template from "../lib/template";
 
     export default {
         name: "ADGenerate",
         components: {Config, ADLocation},
         data() {
             return {
+                adList:[],
+                currentPage:1,
+                adTotal:0,
+                adCols:[
+                    {
+                        title: '广告名',
+                        key: 'placement_name'
+                    },
+                    {
+                        title: '媒体名',
+                        key: 'app_name',
+                        width: 100
+                    },
+                    {
+                        title: '类型',
+                        key: 'type',
+                        width: 100
+                    },
+                ],
                 drawerFlag: false,
                 platform: 'adnet',
                 placementName: '',
                 prepareStr: '',
                 adLocs: [],
                 account: '',
-                appId:''
+                appId:'',
+                placementNameSearch:'',
+                adName:''
             }
         },
         computed:{
@@ -88,6 +124,50 @@
             }
         },
         methods: {
+            tianChongClick(){
+                let allAds = [];
+                let params = {r: 'Wap/Advert/adList', page: 1};
+                if (this.adName) {
+                    params.kw = this.adName;
+                    this.$api.get('', {params}).then(data=>{
+
+                        if (data.stat === false || data.list.length === 0){
+                            this.$Message.warning('公司广告中`不存在`此名称的广告');
+                            return ;
+                        }
+                        allAds = allAds.concat(data.list);
+                        if(parseInt(data.count) >10){
+
+                        }
+                        allAds.forEach(obj=>{
+                            this.tianChongReq(obj.name);
+                        });
+
+                    });
+                }else {
+                    this.$Message.warning('必填');
+                }
+
+            },
+            updateAdReq(obj) {
+                let params = {r: 'Wap/Advert/updateAd'};
+                let data = {
+                    "ecode": obj.ecode,
+                    "etime": '',
+                    "stime": '',
+                    "code": obj.code,
+                    "intro": obj.intro,
+                    "navid": obj.id,
+                    "number":obj.number
+                };
+                return this.$api.post('', {data}, {params});
+            },
+            tianChongReq(name){
+                let adName = name.replace(this.adName,this.placementNameSearch);
+                cache.findAdnet(adName).then(obj=>{
+                    console.log(obj);
+                });
+            },
             createAction() {
                 console.log(this.account);
                 if (!this.placementName) {
@@ -106,7 +186,6 @@
                 ipcRenderer.send('asynchronous-message', obj);
 
             },
-
             prepareAction() {
                 if (!this.placementName) return;
                 this.prepareStr = "";
@@ -144,49 +223,20 @@
                     return '横版纯图片';
                 }
             },
-
-            sqlAdd(){
-                this.$db.transaction(function (tx) {
-                    for (let num = 0; num < 10000; num++){
-                        tx.executeSql('INSERT INTO adnet2 (placement_id,app_id, name1,whj,ui,qwer,account,app_name,yiu) ' +
-                            'VALUES ("jdslkfjasdfuiosfkj", "菜鸟教程", "菜鸟教程", "菜鸟教程", "菜鸟教程", "菜鸟教程", "菜鸟教程", "菜鸟教程", "菜鸟教程")',null,
-                            (t,s)=>{
-                                // console.log(t);
-                                // console.log(s);
-                            },(t,s)=>{
-                            console.log(t);
-                            console.log(s);
-                        });
-                    }
-                });
-
-                this.$db.transaction(function (tx) {
-                    tx.executeSql('SELECT placement_id FROM adnet2', [],  (tx, results) =>{
-                        let len = results.rows.length, i;
-                        console.log(len+'条');
-
-                    }, (tx, results) =>{
-                        console.log(tx);
-                        console.log(results);
-
-                    });
+            loadAdList(){
+                cache.loadAdnetList(this.placementNameSearch,this.currentPage).then(obj=>{
+                    this.adList = obj.dataList;
+                    this.adTotal = obj.total;
                 });
             }
         },
         created() {
-            this.errorNum = 0;
-            this.closeNum = 0;
-
-            this.$db.transaction((tx) => {
-                // tx.executeSql('DROP TABLE adnet2 ');
-
-                tx.executeSql('CREATE TABLE IF NOT EXISTS adnet ' +
-                    '(aapid,placement_id,type,placement_name,app_name,app_id,account)');
-            });
 
             ipcRenderer.on('asynchronous-reply', (event, arg) => {
               console.log(arg);
-            })
+            });
+
+            this.loadAdList();
 
         },
         destroyed() {
