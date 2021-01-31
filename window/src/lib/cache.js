@@ -110,7 +110,7 @@ export default {
         });
     },
     cacheFile(arr){
-        this.$db.transaction(function (tx) {
+        this.db.transaction(function (tx) {
 
             let sql = 'INSERT INTO adnet (aapid,placement_id,type,placement_name,app_name,app_id,account) ' +
                 'VALUES (?, ?, ?, ?, ?, ?, ?)'
