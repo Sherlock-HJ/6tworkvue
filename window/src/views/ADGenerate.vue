@@ -7,7 +7,8 @@
                     <Option v-for="item in platforms" :value="item.key">{{item.name}}</Option>
                 </Select>
                 <Select v-model="account" placeholder="选择账号">
-                    <Option v-for="item in accounts" :value="item.account+','+item.pwd">{{item.account+','+item.pwd}}</Option>
+                    <Option v-for="item in accounts" :value="item.account+','+item.pwd">{{item.account+','+item.pwd}}
+                    </Option>
                 </Select>
 
                 <Input v-model="placementName" placeholder="广告名称前缀（或是渠道名）">
@@ -52,11 +53,11 @@
         <Row>
             <Col span="12">
 
-            <Button @click="createAction" type="primary">创建</Button>
+                <Button @click="createAction" type="primary">创建</Button>
             </Col>
             <Col span="12">
                 <Input v-model="adName" placeholder="公司广告名查询"></Input>
-                <RadioGroup>
+                <RadioGroup v-model="tianChongAction">
                     <Radio label="add">
                         <span>追加</span>
                     </Radio>
@@ -73,20 +74,22 @@
 
 <script>
     import ADLocation from "../components/ADLocation";
-    import {clipboard, ipcRenderer} from "electron";
+    import {ipcRenderer} from "electron";
     import Config from "../components/Config";
     import cache from "../lib/cache";
     import template from "../lib/template";
+    import axios from 'axios';
 
     export default {
         name: "ADGenerate",
         components: {Config, ADLocation},
         data() {
             return {
-                adList:[],
-                currentPage:1,
-                adTotal:0,
-                adCols:[
+                tianChongAction: null,
+                adList: [],
+                currentPage: 1,
+                adTotal: 0,
+                adCols: [
                     {
                         title: '广告名',
                         key: 'placement_name'
@@ -108,46 +111,76 @@
                 prepareStr: '',
                 adLocs: [],
                 account: '',
-                appId:'',
-                placementNameSearch:'',
-                adName:''
+                appId: '',
+                placementNameSearch: 'kh渠道1',
+                adName: '酷划渠道1'
             }
         },
-        computed:{
-            accounts(){
-                return this.$store.state.config.accounts.filter((obj,index)=>{
+        computed: {
+            accounts() {
+                return this.$store.state.config.accounts.filter((obj, index) => {
                     return obj.platform === this.platform;
                 });
             },
-            platforms(){
+            platforms() {
                 return this.$store.state.config.platforms;
             }
         },
         methods: {
-            tianChongClick(){
-                let allAds = [];
-                let params = {r: 'Wap/Advert/adList', page: 1};
-                if (this.adName) {
-                    params.kw = this.adName;
-                    this.$api.get('', {params}).then(data=>{
-
-                        if (data.stat === false || data.list.length === 0){
-                            this.$Message.warning('公司广告中`不存在`此名称的广告');
-                            return ;
-                        }
-                        allAds = allAds.concat(data.list);
-                        if(parseInt(data.count) >10){
-
-                        }
-                        allAds.forEach(obj=>{
-                            this.tianChongReq(obj.name);
+            tianChongClick() {
+                if (this.tianChongAction == null) {
+                    this.$Message.warning('选择追加/覆盖');
+                    return;
+                }
+                if (this.adName && this.placementNameSearch) {
+                    this.getAdListAllForName(this.adName).then(allAds=>{
+                        allAds.forEach(obj => {
+                            this.tianChongReq(obj);
                         });
-
+                    },error=>{
+                        this.$Message.warning(error);
                     });
-                }else {
-                    this.$Message.warning('必填');
+                } else {
+                    this.$Message.warning('平台/公司广告名 必填');
                 }
 
+            },
+            getAdListAllForName(adName){
+               return new Promise((resolve, reject)=>{
+                   let allAds = [];
+                   this.adListReq(1,adName).then(data => {
+
+                       if (data.stat === false || data.list.length === 0) {
+                           reject('公司广告中`不存在`此名称的广告');
+                           return;
+                       }
+                       allAds = allAds.concat(data.list);
+                       if (parseInt(data.count) > 10) {
+                           let arr = [];
+                           for (let num = 1; num < Math.ceil(data.count/10.0); num++) {
+                               arr.push(this.adListReq(num+1,this.adName));
+                           }
+
+                           axios.all(arr).then(axios.spread(function () {
+                                   let datas = arguments;
+                                   for (let num = 0; num < datas.length; num++) {
+                                       if (datas[num]['stat']) {
+                                           allAds = allAds.concat(datas[num]['list']);
+                                       }
+                                   }
+                                   resolve(allAds);
+                               }));
+                       }else {
+                           resolve(allAds);
+                       }
+                   });
+               });
+
+            },
+            adListReq(page,adName){
+                let params = {r: 'Wap/Advert/adList', page};
+                params.kw = adName;
+                return  this.$api.get('', {params});
             },
             updateAdReq(obj) {
                 let params = {r: 'Wap/Advert/updateAd'};
@@ -158,14 +191,33 @@
                     "code": obj.code,
                     "intro": obj.intro,
                     "navid": obj.id,
-                    "number":obj.number
+                    "number": obj.number
                 };
-                return this.$api.post('', {data}, {params});
+                this.$api.post('', {data}, {params}).then(resp=>{
+                    console.log(resp);
+                });
             },
-            tianChongReq(name){
-                let adName = name.replace(this.adName,this.placementNameSearch);
-                cache.findAdnet(adName).then(obj=>{
-                    console.log(obj);
+            tianChongReq(adObj) {
+                let adName = adObj.name.replace(this.adName, this.placementNameSearch);
+                cache.findAdnet(adName).then(obj => {
+                    if (obj) {
+                        let code = template.adnet_native
+                            .replace(/adID/g, obj.placement_id)
+                            .replace(/appID/g, obj.app_id)
+                        if (this.tianChongAction === 'add') {
+                            adObj.code = adObj.code + '\n\n\n' + code;
+                            adObj.intro = adObj.intro + '\n' + obj.placement_id;
+                        } else {
+                            adObj.code = code;
+                            adObj.intro = obj.placement_id;
+                        }
+                        this.updateAdReq(adObj);
+                    } else {
+                        this.$Message.warning({
+                            duration: 5,
+                            content: "[" + adObj.name + '] 未在本地找到对应的'
+                        });
+                    }
                 });
             },
             createAction() {
@@ -174,7 +226,7 @@
                     this.$Message.warning('请填写广告');
                     return;
                 }
-                let [account ,pwd] = this.account.split(',');
+                let [account, pwd] = this.account.split(',');
                 let obj = {};
                 obj.platform = this.platform;
                 obj.account = account;
@@ -182,7 +234,6 @@
                 obj.adnames = this.prepareStr.split('\n');
 
                 console.log(obj);
-                clipboard.writeText(JSON.stringify(obj));
                 ipcRenderer.send('asynchronous-message', obj);
 
             },
@@ -195,8 +246,8 @@
 
                         let separator = '__';
                         let placementName = this.placementName + obj.text + num;
-                        let appName = separator+'北京广典';
-                        let scenario = separator+'动态信息流';//插屏
+                        let appName = separator + '北京广典';
+                        let scenario = separator + '动态信息流';//插屏
                         let style = '';
                         if (this.platform === 'adnet') {
                             style = separator + this.adnetType(num, obj.seg);
@@ -223,8 +274,8 @@
                     return '横版纯图片';
                 }
             },
-            loadAdList(){
-                cache.loadAdnetList(this.placementNameSearch,this.currentPage).then(obj=>{
+            loadAdList() {
+                cache.loadAdnetList(this.placementNameSearch, this.currentPage).then(obj => {
                     this.adList = obj.dataList;
                     this.adTotal = obj.total;
                 });
@@ -233,7 +284,7 @@
         created() {
 
             ipcRenderer.on('asynchronous-reply', (event, arg) => {
-              console.log(arg);
+                console.log(arg);
             });
 
             this.loadAdList();
@@ -249,7 +300,8 @@
     .ADGenerate {
         margin: 10px;
     }
-    .ADGenerate  > div{
+
+    .ADGenerate > div {
         margin-bottom: 10px;
     }
 </style>

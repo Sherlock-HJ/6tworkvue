@@ -21,7 +21,7 @@ exports.createWindow = ()=> {
     } else {
         mainWindow.loadFile('./dist/index.html');
     }
-    // mainWindow.maximize();
+    mainWindow.maximize();
 };
 exports.mainWindow = ()=> {
     return mainWindow;

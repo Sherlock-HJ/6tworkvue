@@ -15,7 +15,6 @@ Vue.use(ViewUI);
 Vue.config.productionTip = false;
 
 cache.createTable().then(()=>{
-  console.log('whjwejkejw');
   new Vue({
     router,
     store,

@@ -36,14 +36,13 @@
               show-sizer/>
         <br/>
         <Table border ref="selection" :columns="columns"
+               @on-cell-click="tableCellClick"
                @on-select="tableSelect"
                @on-select-cancel="tableSelectCancel"
                @on-select-all="tableSelectAll"
                @on-select-all-cancel="tableSelectAllCancel"
                :data="datas">
-            <template slot-scope="{ row }" slot="name">
-                <div class="adNameCopy" :data-clipboard-text="row.name">{{row.name}}</div>
-            </template>
+
             <template slot-scope="{ index,column,row }" slot="number">
                 <Input placeholder="广告编码"
                        type="textarea"
@@ -108,6 +107,7 @@
 
 <script>
     import axios from 'axios'
+    import {clipboard} from "electron";
 
     export default {
         name: "AD",
@@ -126,7 +126,7 @@
                     },
                     {
                         title: '名称',
-                        slot: 'name',
+                        key: 'name',
                         width: 100
 
                     },
@@ -214,6 +214,9 @@
                     "number":obj.number
                 };
                 return this.$api.post('', {data}, {params});
+            },
+            tableCellClick(row, column, data){
+                clipboard.writeText(data);
             },
             tableSelect(selection, row) {
                 this.tableSelection = selection;

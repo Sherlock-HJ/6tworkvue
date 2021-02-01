@@ -64,7 +64,7 @@
                 reader.onloadend = () => {
                     let arr = reader.result.split('\n');
                     arr.forEach(obj => {
-                        cache.cacheFile(obj.split(','));
+                        cache.cacheAdnetFile(obj.split(','));
                     });
 
                 };

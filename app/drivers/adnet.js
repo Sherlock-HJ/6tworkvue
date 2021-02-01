@@ -96,14 +96,7 @@ const getAd = async (driver, file, obj) => {
 
                 arr.push(obj.account);
                 arr.push(obj.account + '_' + arr[4] + '_' + arr[1]);
-                dfd = arr.join(',');
 
-                fs.writeFile(file, dfd + '\n', {
-                    encoding: 'utf8',
-                    flag: 'a'
-                }, err => {
-                    console.log(err);
-                });
             }
         } catch (e) {
             console.log(e);
@@ -137,50 +130,9 @@ const getAd = async (driver, file, obj) => {
         return false;
     }
 };
-const uploadBmob = async (file) => {
-    //上传到bmob
-    fs.readFile(file,'utf8', (err, data) => {
-        if (err) {
-            return console.error(err);
-        }
-        let str = data.toString();
-        let arr = str.split('\n');
-        let keys = arr[0].split(',');
-        arr = arr.slice(1);
 
-        let arr2 = [];
-        arr.forEach(row=>{
-            if (row.length > 0 ) {
-                let obj = {};
-                let rowValues = row.split(',');
-                for (let num = 0; num < keys.length; num++) {
-                    obj[keys[num]] = rowValues[num];
-                }
-                arr2.push(obj);
-            }
-        });
-        // console.log(arr2);
-        cache.adnetInsert(arr2);
-    });
-};
-
-const cacheAd = async (driver, obj) => {
+const SyncAd = async (driver, obj) => {
     //创建本地暂存文件
-    let date = new Date();
-    let time = '' + date.getFullYear() + '-' +
-        (date.getMonth() + 1) + '-' +
-        date.getDate() + '_' +
-        date.getHours() + '-' +
-        date.getMinutes() + '-' +
-        date.getSeconds();
-    let file = './cache/' + obj.account + "_" + time + '.csv';
-    let header = "placement_name,placement_id,type,app_name,app_id,account,aapid\n";
-    fs.writeFile(file, header, {
-        encoding: 'utf8',
-        flag: 'a'
-    }, err => {
-        console.log(err);
-    });
 
     //按页获取已创建好的广告存储到本地
     const len = Math.ceil(obj.adnames.length / 20.0);
@@ -189,19 +141,17 @@ const cacheAd = async (driver, obj) => {
        if (isDone) break;
     }
 
-    //上传到bmob
-    uploadBmob(file);
 
 };
 
-const launchCacheAd = async (obj) => {
+const launchSyncAd = async (obj) => {
     const driver = await init();
 
     try {
         //登录
         await login(driver, obj);
         //按页获取已创建好的广告存储到本地
-        await cacheAd(driver, obj);
+        await SyncAd(driver, obj);
     } catch (e) {
         await driver.executeScript("alert('出错 10秒后退出，也可自行关闭');",);
         await driver.sleep(8 *1000);
@@ -211,7 +161,7 @@ const launchCacheAd = async (obj) => {
     }
 };
 
-const launch = async (obj) => {
+const launchCreateAd = async (obj) => {
 
     const driver = await init();
 
@@ -225,7 +175,7 @@ const launch = async (obj) => {
         }
 
         //按页获取已创建好的广告存储到本地 并上传bmob
-        await cacheAd(driver, obj);
+        await SyncAd(driver, obj);
 
     } catch (e) {
         await driver.executeScript(`alert('出错 10秒后退出，也可自行关闭\n${e.error()}');`);
@@ -236,5 +186,5 @@ const launch = async (obj) => {
     }
 };
 
-module.exports = {launch, launchCacheAd,uploadBmob};
+module.exports = {launchCreateAd, launchSyncAd};
 

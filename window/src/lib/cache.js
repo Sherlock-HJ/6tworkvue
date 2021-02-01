@@ -3,7 +3,7 @@ export default {
     createTable() {
         let tables = [
             'CREATE TABLE IF NOT EXISTS adnet ' +
-            '(aapid,placement_id,type,placement_name,app_name,app_id,account)',
+            '(aapid unique,placement_id,type,placement_name,app_name,app_id,account)',
             'CREATE TABLE IF NOT EXISTS baidu ' +
             '(account)',
             'CREATE TABLE IF NOT EXISTS sogou ' +
@@ -38,8 +38,7 @@ export default {
     },
     findAdnet(name){
         let data = null;
-此处报错
-        let where = "WHERE placement_name = "+ name;
+        let where = "WHERE placement_name = '"+ name+"'";
         let sqlArr = [];
         sqlArr.push("SELECT * FROM adnet");
         sqlArr.push(where);
@@ -49,7 +48,10 @@ export default {
         return new Promise((resolve, reject) => {
             this.db.transaction((tx) => {
                 tx.executeSql(sql, [], (transaction, resultSet) => {
-                    data = resultSet.rows.item(0);
+
+                    if (resultSet.rows.length > 0){
+                        data = resultSet.rows.item(0);
+                    }
                 }, (transaction, error) => {
                     reject(error);
                 });
@@ -109,7 +111,7 @@ export default {
 
         });
     },
-    cacheFile(arr){
+    cacheAdnetFile(arr){
         this.db.transaction(function (tx) {
 
             let sql = 'INSERT INTO adnet (aapid,placement_id,type,placement_name,app_name,app_id,account) ' +
