@@ -118,7 +118,7 @@
                 appId: '',
                 placementNameSearch: '',
                 adName: '',
-                syncTotal:0
+                syncTotal: 0
             }
         },
         computed: {
@@ -132,60 +132,68 @@
             }
         },
         methods: {
-            tianChongClick() {
+            async tianChongClick() {
                 if (this.tianChongAction == null) {
                     this.$Message.warning('选择追加/覆盖');
                     return;
                 }
                 if (this.adName && this.placementNameSearch) {
-                    this.getAdListAllForName(this.adName).then(allAds=>{
-                        allAds.forEach(obj => {
-                            this.tianChongReq(obj);
-                        });
-                    },error=>{
+                    this.$Spin.show();
+                    let allAds = await this.getAdListAllForName(this.adName).catch(error => {
+                        this.$Spin.hide();
                         this.$Message.warning(error);
                     });
+                    if (!allAds) {return ;}
+                    let reqArr = [];
+                    for (let num = 0; num < allAds.length; num++){
+                       // const  req = await this.tianChongReq(allAds[num]);
+                        reqArr.push(req);
+                    }
+                    this.$Spin.hide();
+                    // axios.all(reqArr).then(axios.spread(function () {
+                    //
+                    // }));
                 } else {
                     this.$Message.warning('平台/公司广告名 必填');
                 }
 
             },
-            getAdListAllForName(adName){
-               return new Promise((resolve, reject)=>{
-                   let allAds = [];
-                   this.adListReq(1,adName).then(data => {
+            getAdListAllForName(adName) {
+                return new Promise((resolve, reject) => {
+                    let allAds = [];
+                    this.adListReq(1, adName).then(data => {
 
-                       if (data.stat === false || data.list.length === 0) {
-                           reject('公司广告中`不存在`此名称的广告');
-                           return;
-                       }
-                       allAds = allAds.concat(data.list);
-                       if (parseInt(data.count) > 10) {
-                           let arr = [];
-                           for (let num = 1; num < Math.ceil(data.count/10.0); num++) {
-                               arr.push(this.adListReq(num+1,this.adName));
-                           }
+                        if (data.stat === false || data.list.length === 0) {
+                            reject('公司广告中`不存在`此名称的广告');
+                            return;
+                        }
+                        allAds = allAds.concat(data.list);
+                        if (parseInt(data.count) > 10) {
+                            let arr = [];
+                            for (let num = 1; num < Math.ceil(data.count / 10.0); num++) {
+                                arr.push(this.adListReq(num + 1, this.adName));
+                            }
 
-                           axios.all(arr).then(axios.spread(function () {
-                                   let datas = arguments;
-                                   for (let num = 0; num < datas.length; num++) {
-                                       if (datas[num]['stat']) {
-                                           allAds = allAds.concat(datas[num]['list']);
-                                       }
-                                   }
-                                   resolve(allAds);
-                               }));
-                       }else {
-                           resolve(allAds);
-                       }
-                   });
-               });
+                            axios.all(arr).then(axios.spread(function () {
+                                let datas = arguments;
+                                for (let num = 0; num < datas.length; num++) {
+                                    if (datas[num]['stat']) {
+                                        allAds = allAds.concat(datas[num]['list']);
+                                    }
+                                }
+                                resolve(allAds);
+                            }));
+                        } else {
+                            resolve(allAds);
+                        }
+                    });
+                });
 
             },
-            adListReq(page,adName){
+            adListReq(page, adName) {
                 let params = {r: 'Wap/Advert/adList', page};
                 params.kw = adName;
-                return  this.$api.get('', {params});
+                return this.$api.get('', {params});
             },
             updateAdReq(obj) {
                 let params = {r: 'Wap/Advert/updateAd'};
@@ -198,32 +206,32 @@
                     "navid": obj.id,
                     "number": obj.number
                 };
-                this.$api.post('', {data}, {params}).then(resp=>{
-                    console.log(resp);
-                });
+                return this.$api.post('', {data}, {params});
             },
-            tianChongReq(adObj) {
+            async tianChongReq(adObj) {
                 let adName = adObj.name.replace(this.adName, this.placementNameSearch);
-                cache.findAdnet(adName).then(obj => {
-                    if (obj) {
-                        let code = template.adnet_native
-                            .replace(/adID/g, obj.placement_id)
-                            .replace(/appID/g, obj.app_id)
-                        if (this.tianChongAction === 'add') {
-                            adObj.code = adObj.code + '\n\n\n' + code;
-                            adObj.intro = adObj.intro + '\n' + obj.placement_id;
-                        } else {
-                            adObj.code = code;
-                            adObj.intro = obj.placement_id;
-                        }
-                        this.updateAdReq(adObj);
+                let data = null;
+                let obj = cache.findAdnet(adName)
+                if (obj) {
+                    let code = template.adnet_native
+                        .replace(/adID/g, obj.placement_id)
+                        .replace(/appID/g, obj.app_id)
+                    if (this.tianChongAction === 'add') {
+                        adObj.code = adObj.code + '\n\n\n' + code;
+                        adObj.intro = adObj.intro + '\n' + obj.placement_id;
                     } else {
-                        this.$Message.warning({
-                            duration: 5,
-                            content: "[" + adObj.name + '] 未在本地找到对应的'
-                        });
+                        adObj.code = code;
+                        adObj.intro = obj.placement_id;
                     }
-                });
+                    data = this.updateAdReq(adObj);
+                } else {
+                    console.log("[" + adObj.name + '] 未在本地找到对应的');
+                    this.$Message.warning({
+                        duration: 5,
+                        content: "[" + adObj.name + '] 未在本地找到对应的'
+                    });
+                }
+                return data;
             },
             createAction() {
                 if (!this.account) {
@@ -243,17 +251,17 @@
 
                 console.log(obj);
                 this.$Spin.show();
-                ipcRenderer.invoke('open-chrome-create-ad', obj).then(res=>{
+                ipcRenderer.invoke('open-chrome-create-ad', obj).then(res => {
                     this.$Spin.hide();
                     this.loadAdList();
                     this.$Message.success('创建 并 保存完成');
                 }).catch(reason => {
                     this.$Spin.hide();
-                    this.$Message.error(reason+'失败');
+                    this.$Message.error(reason + '失败');
                 });
 
             },
-            syncAdClick(){
+            syncAdClick() {
                 if (!this.account) {
                     this.$Message.warning('请选择账号密码');
                     return;
@@ -266,13 +274,13 @@
 
                 console.log(obj);
                 this.$Spin.show();
-                ipcRenderer.invoke('open-chrome-sync-ad', obj).then(res=>{
+                ipcRenderer.invoke('open-chrome-sync-ad', obj).then(res => {
                     this.$Spin.hide();
                     this.loadAdList();
                     this.$Message.success('同步完成');
                 }).catch(reason => {
                     this.$Spin.hide();
-                    this.$Message.error(reason+'失败');
+                    this.$Message.error(reason + '失败');
                 });
             },
             prepareAction() {
@@ -314,7 +322,7 @@
             },
             loadAdList() {
                 let [account] = this.account.split(',');
-                cache.loadAdnetList(this.placementNameSearch,account, this.currentPage).then(obj => {
+                cache.loadAdnetList(this.placementNameSearch, account, this.currentPage).then(obj => {
                     this.adList = obj.dataList;
                     this.adTotal = obj.total;
                 });
@@ -343,10 +351,11 @@
     /*.ADGenerate > div {*/
     /*    margin-bottom: 10px;*/
     /*}*/
-    .ADGenerate > div > div > div{
+    .ADGenerate > div > div > div {
         margin-bottom: 5px;
     }
-    .ADGenerate > div > div > ul{
+
+    .ADGenerate > div > div > ul {
         margin-bottom: 5px;
     }
 </style>
