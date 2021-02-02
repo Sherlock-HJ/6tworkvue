@@ -242,9 +242,14 @@
                 obj.adnames = this.prepareStr.split('\n');
 
                 console.log(obj);
+                this.$Spin.show();
                 ipcRenderer.invoke('open-chrome-create-ad', obj).then(res=>{
+                    this.$Spin.hide();
                     this.loadAdList();
                     this.$Message.success('创建 并 保存完成');
+                }).catch(reason => {
+                    this.$Spin.hide();
+                    this.$Message.error(reason+'失败');
                 });
 
             },
@@ -260,9 +265,14 @@
                 obj.pwd = pwd;
 
                 console.log(obj);
+                this.$Spin.show();
                 ipcRenderer.invoke('open-chrome-sync-ad', obj).then(res=>{
+                    this.$Spin.hide();
                     this.loadAdList();
                     this.$Message.success('同步完成');
+                }).catch(reason => {
+                    this.$Spin.hide();
+                    this.$Message.error(reason+'失败');
                 });
             },
             prepareAction() {
