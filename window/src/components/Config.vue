@@ -1,6 +1,9 @@
 <template>
     <div>
         <input type="file" @change="changeFile($event)"></input>
+        <Button @click="outClick" type="primary">导出</Button>
+        <Button @click="delTableClick" type="primary">删除</Button>
+
         <Select v-model="platform">
             <Option v-for="item in platforms" :value="item.key">{{item.name}}</Option>
         </Select>
@@ -36,7 +39,8 @@
             return {
                 pwd: '',
                 account: '',
-                platform: 'adnet'
+                platform: 'adnet',
+                inTotal:0
             };
         },
         computed: {
@@ -58,14 +62,47 @@
             }
         },
         methods: {
+            delTableClick() {
+
+                cache.delTable().then(resp => {
+                    console.log(resp);
+                });
+            },
+            outClick() {
+                cache.outData().then(str => {
+                    let a = document.createElement("a");
+                    a.setAttribute('download', 'out.txt');
+                    a.href = "data:text/plain," + str;
+                    a.click();
+                });
+            },
             changeFile(e) {
                 console.log(e.target.files[0]);
                 let reader = new FileReader();
                 reader.onloadend = () => {
                     let arr = reader.result.split('\n');
-                    arr.forEach(obj => {
-                        cache.cacheAdnetFile(obj.split(','));
+                    console.log('dsfa');
+                    let num = 0;
+                    let len = arr.length;
+                    this.$Spin.show({
+                        render: (h) => {
+                            return h('div', [
+                                    h('div', this.inTotal+"/"+len),
+                                    h('div', '导入中...')
+                                ]
+                            )
+                        }
                     });
+                    arr.forEach(obj => {
+                        cache.insertAdnet(obj.split(','), () => {
+                            num++;
+                            this.inTotal = num;
+                            if (num === len) {
+                                this.$Spin.hide();
+                            }
+                        });
+                    });
+                    console.log('dsfa1223');
 
                 };
                 reader.readAsText(e.target.files[0]);

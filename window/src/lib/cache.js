@@ -3,7 +3,7 @@ export default {
     createTable() {
         let tables = [
             'CREATE TABLE IF NOT EXISTS adnet ' +
-            '(aapid unique,placement_id,type,placement_name,app_name,app_id,account)',
+            '(placement_name,placement_id,type,app_name,app_id,account,aapid unique)',
             'CREATE TABLE IF NOT EXISTS baidu ' +
             '(account)',
             'CREATE TABLE IF NOT EXISTS sogou ' +
@@ -63,13 +63,58 @@ export default {
             });
         });
     },
-    loadAdnetList(name, page,pageSize=5) {
+    delTable(){
+        let sql = "DROP TABLE adnet";
+        console.log(sql);
+
+        return new Promise((resolve, reject) => {
+            this.db.transaction((tx) => {
+                tx.executeSql(sql, [], (transaction, resultSet) => {
+                    resolve(resultSet);
+                }, (transaction, error) => {
+                    reject(error);
+                });
+
+            }, error => {
+                reject(error);
+            }, () => {
+            });
+        });
+    },
+    outData(){
+        let dataList = [];
+        let sql = "SELECT * FROM adnet ORDER BY rowid";
+        console.log(sql);
+
+        return new Promise((resolve, reject) => {
+            this.db.transaction((tx) => {
+                tx.executeSql(sql, [], (transaction, resultSet) => {
+                    let len = resultSet.rows.length;
+                    let keys = ["placement_name","placement_id","type","app_name","app_id","account","aapid"];
+                    for (let num = 0; num < len; num++) {
+                        let obj = resultSet.rows.item(num);
+                        let arr = [];
+                        keys.forEach(key=>{
+                            arr.push(obj[key]);
+                        });
+                        dataList.push(arr.join(","));
+                    }
+                }, (transaction, error) => {
+                    reject(error);
+                });
+
+            }, error => {
+                reject(error);
+            }, () => {
+                resolve(dataList.join("\n"));
+            });
+        });
+    },
+    loadAdnetList(name, account,page,pageSize=5) {
         let dataList = [];
         let total = 0;
 
-        let where = "WHERE placement_name LIKE '%"
-            + name
-            + "%'";
+        let where = `WHERE placement_name LIKE '%${name}%' and account='${account}'`;
         let sqlArr = [];
         sqlArr.push("SELECT * FROM adnet");
         sqlArr.push(where);
@@ -111,17 +156,14 @@ export default {
 
         });
     },
-    cacheAdnetFile(arr){
+    insertAdnet(arr,done){
         this.db.transaction(function (tx) {
 
-            let sql = 'INSERT INTO adnet (aapid,placement_id,type,placement_name,app_name,app_id,account) ' +
+            let sql = 'INSERT INTO adnet (placement_name,placement_id,type,app_name,app_id,account,aapid) ' +
                 'VALUES (?, ?, ?, ?, ?, ?, ?)'
             tx.executeSql(sql, arr, (tx, results) => {
-                console.log(tx);
-                console.log(results);
-
+                done();
             }, (tx, results) => {
-                console.log(tx);
                 console.log(results);
 
             });

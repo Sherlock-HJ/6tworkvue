@@ -5,18 +5,18 @@ if (debug){
 
 const {app, ipcMain} = require('electron');
 const {createWindow} = require('./main_window');
+const drivers =  require('./drivers');
 
-
-
-ipcMain.on('asynchronous-message', (event, arg) => {
-
-    const driv =  require('./drivers');
-
-    driv.open(arg).then(()=>{
-        event.reply('asynchronous-reply');
-    });
-});
 app.whenReady().then(() => {
     createWindow();
+
+    ipcMain.handle('open-chrome-create-ad', async (event, arg) => {
+
+        await drivers.launchCreateAd(arg);
+    });
+    ipcMain.handle('open-chrome-sync-ad', async (event, arg) => {
+
+        await drivers.launchSyncAd(arg);
+    });
 
 });

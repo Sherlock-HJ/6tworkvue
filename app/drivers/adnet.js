@@ -1,8 +1,7 @@
 const {Builder, WebElement, By, Key, until} = require('selenium-webdriver');
 const {Options, ServiceBuilder,} = require('selenium-webdriver/chrome');
-// const {mainWindow} = require('../main_window');
-const cache = require('../cache/cache');
-const fs = require('fs');
+const {mainWindow} = require('../main_window');
+
 
 const init = async () => {
     const builder = new Builder();
@@ -70,7 +69,7 @@ const createAd = async (driver, str) => {
 
 };
 
-const getAd = async (driver, file, obj) => {
+const getAd = async (driver, obj) => {
     try {
         let countPage = await driver.wait(until.elementLocated(By.css('.pagination')));
         await driver.wait(until.elementIsEnabled(countPage));
@@ -97,6 +96,7 @@ const getAd = async (driver, file, obj) => {
                 arr.push(obj.account);
                 arr.push(obj.account + '_' + arr[4] + '_' + arr[1]);
 
+                mainWindow().webContents.send('from-chrome-syncing-ad',arr);
             }
         } catch (e) {
             console.log(e);
@@ -135,9 +135,12 @@ const SyncAd = async (driver, obj) => {
     //创建本地暂存文件
 
     //按页获取已创建好的广告存储到本地
-    const len = Math.ceil(obj.adnames.length / 20.0);
+    let len = 100000;
+    if (obj.adnames && obj.adnames.length > 0){
+        len = Math.ceil(obj.adnames.length / 20.0);
+    }
     for (let i = 0; i < len; i++) {
-       let isDone = await getAd(driver, file, obj);
+       let isDone = await getAd(driver, obj);
        if (isDone) break;
     }
 
@@ -156,7 +159,7 @@ const launchSyncAd = async (obj) => {
         await driver.executeScript("alert('出错 10秒后退出，也可自行关闭');",);
         await driver.sleep(8 *1000);
     } finally {
-        await driver.sleep(20 *1000);
+        await driver.sleep(2 *1000);
         driver.quit();
     }
 };
@@ -181,7 +184,7 @@ const launchCreateAd = async (obj) => {
         await driver.executeScript(`alert('出错 10秒后退出，也可自行关闭\n${e.error()}');`);
         await driver.sleep(8 *1000);
     } finally {
-        await driver.sleep(20 *1000);
+        await driver.sleep(2 *1000);
         driver.quit();
     }
 };

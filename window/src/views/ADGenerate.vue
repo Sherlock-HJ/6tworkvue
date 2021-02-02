@@ -6,7 +6,7 @@
                 <Select v-model="platform" @on-change="loadAdList">
                     <Option v-for="item in platforms" :value="item.key">{{item.name}}</Option>
                 </Select>
-                <Select v-model="account" placeholder="选择账号">
+                <Select v-model="account" placeholder="选择账号" @on-change="loadAdList">
                     <Option v-for="item in accounts" :value="item.account+','+item.pwd">{{item.account+','+item.pwd}}
                     </Option>
                 </Select>
@@ -46,6 +46,10 @@
                 <Page :current.sync="currentPage"
                       :page-size="5"
                       :total="adTotal" @on-change="loadAdList"/>
+                <div>
+                    <Button @click="syncAdClick" type="primary">同步广告</Button>
+                    <span> 已同步 {{syncTotal}} 条</span>
+                </div>
 
             </Col>
 
@@ -112,8 +116,9 @@
                 adLocs: [],
                 account: '',
                 appId: '',
-                placementNameSearch: 'kh渠道1',
-                adName: '酷划渠道1'
+                placementNameSearch: '',
+                adName: '',
+                syncTotal:0
             }
         },
         computed: {
@@ -221,9 +226,12 @@
                 });
             },
             createAction() {
-                console.log(this.account);
-                if (!this.placementName) {
-                    this.$Message.warning('请填写广告');
+                if (!this.account) {
+                    this.$Message.warning('请选择账号密码');
+                    return;
+                }
+                if (!this.prepareStr) {
+                    this.$Message.warning('请填写或预创建广告名');
                     return;
                 }
                 let [account, pwd] = this.account.split(',');
@@ -234,8 +242,28 @@
                 obj.adnames = this.prepareStr.split('\n');
 
                 console.log(obj);
-                ipcRenderer.send('asynchronous-message', obj);
+                ipcRenderer.invoke('open-chrome-create-ad', obj).then(res=>{
+                    this.loadAdList();
+                    this.$Message.success('创建 并 保存完成');
+                });
 
+            },
+            syncAdClick(){
+                if (!this.account) {
+                    this.$Message.warning('请选择账号密码');
+                    return;
+                }
+                let [account, pwd] = this.account.split(',');
+                let obj = {};
+                obj.platform = this.platform;
+                obj.account = account;
+                obj.pwd = pwd;
+
+                console.log(obj);
+                ipcRenderer.invoke('open-chrome-sync-ad', obj).then(res=>{
+                    this.loadAdList();
+                    this.$Message.success('同步完成');
+                });
             },
             prepareAction() {
                 if (!this.placementName) return;
@@ -275,7 +303,8 @@
                 }
             },
             loadAdList() {
-                cache.loadAdnetList(this.placementNameSearch, this.currentPage).then(obj => {
+                let [account] = this.account.split(',');
+                cache.loadAdnetList(this.placementNameSearch,account, this.currentPage).then(obj => {
                     this.adList = obj.dataList;
                     this.adTotal = obj.total;
                 });
@@ -283,15 +312,15 @@
         },
         created() {
 
-            ipcRenderer.on('asynchronous-reply', (event, arg) => {
-                console.log(arg);
+            ipcRenderer.on('from-chrome-syncing-ad', (event, arr) => {
+                cache.insertAdnet(arr);
             });
 
             this.loadAdList();
 
         },
         destroyed() {
-
+            ipcRenderer.removeAllListeners('from-chrome-syncing-ad');
         }
     }
 </script>
@@ -301,7 +330,13 @@
         margin: 10px;
     }
 
-    .ADGenerate > div {
-        margin-bottom: 10px;
+    /*.ADGenerate > div {*/
+    /*    margin-bottom: 10px;*/
+    /*}*/
+    .ADGenerate > div > div > div{
+        margin-bottom: 5px;
+    }
+    .ADGenerate > div > div > ul{
+        margin-bottom: 5px;
     }
 </style>
