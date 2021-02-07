@@ -21,9 +21,9 @@ cache.createTable().then(()=>{
     render: h => h(App),
   }).$mount('#app1');
 },error=>{
-  console.log(error);
+  ViewUI.Message.warning(error);
 }).catch(error=>{
-  console.log(error);
+  ViewUI.Message.warning(error);
 });
 
 

@@ -1,13 +1,18 @@
+/* eslint-disable vue/no-parsing-error */
 <template>
     <div class="ADGenerate">
         <Row :gutter="16">
 
             <Col span="12">
                 <Select v-model="platform" @on-change="loadAdList">
-                    <Option v-for="item in platforms" :value="item.key">{{item.name}}</Option>
+                    <Option v-for="item in platforms" 
+                    :value="item.key" 
+                    :key="item.key">{{item.name}}</Option>
                 </Select>
                 <Select v-model="account" placeholder="选择账号" @on-change="loadAdList">
-                    <Option v-for="item in accounts" :value="item.account+','+item.pwd">{{item.account+','+item.pwd}}
+                    <Option v-for="item in accounts" 
+                    :value="item.account+','+item.pwd"
+                    :key="item.account">{{item.account+','+item.pwd}}
                     </Option>
                 </Select>
 
