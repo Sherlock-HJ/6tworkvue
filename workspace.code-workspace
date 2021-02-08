@@ -6,5 +6,8 @@
 		{
 			"path": "window"
 		}
-	]
+	],
+	"settings": {
+		"vetur.format.defaultFormatter.html": "prettyhtml"
+	}
 }
