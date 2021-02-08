@@ -47,7 +47,7 @@
         },
         methods: {
             goBack(){
-               this.$router.back();
+                    this.$router.replace('/');
             }
         },
         created() {
