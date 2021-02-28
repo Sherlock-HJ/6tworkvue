@@ -37,7 +37,11 @@ const createAd = async (driver, str) => {
     let style = params[3];
 
     // 等待 [新建广告位]按钮出现 并点击
-    await driver.wait(until.elementLocated(By.linkText('新建广告位'))).click();
+    let create = await driver.wait(until.elementLocated(By.linkText('新建广告位')));
+    await driver.wait(until.elementIsEnabled(create));
+    await driver.wait(until.elementIsVisible(create));
+    create.click();
+
     //等待  [选择媒体]出现  并点击
     let xpath = '//div[@class="selection-container selection-container-single with-search"]';
     await driver.wait(until.elementLocated(By.xpath(xpath))).click();
@@ -63,7 +67,7 @@ const createAd = async (driver, str) => {
     await driver.findElement(By.xpath(xpath)).click();
     //等待此 element出现
     xpath = '//button[@class="spaui-button spaui-button-primary spaui-component"]';
-    let iknow = await driver.wait(until.elementLocated(By.xpath(xpath))).click();
+    let iknow = await driver.wait(until.elementLocated(By.xpath(xpath)));
     await driver.executeScript("arguments[0].click();", iknow);
 
 
@@ -132,7 +136,6 @@ const getAd = async (driver, obj) => {
 };
 
 const SyncAd = async (driver, obj) => {
-    //创建本地暂存文件
 
     //按页获取已创建好的广告存储到本地
     let len = 100000;
@@ -177,11 +180,12 @@ const launchCreateAd = async (obj) => {
             await createAd(driver, obj.adnames[i]);
         }
 
-        //按页获取已创建好的广告存储到本地 并上传bmob
+        //按页获取已创建好的广告存储到本地
         await SyncAd(driver, obj);
 
     } catch (e) {
-        await driver.executeScript(`alert('出错 10秒后退出，也可自行关闭\n${e.error()}');`);
+        console.log(e);
+        await driver.executeScript(`alert('出错 10秒后退出，也可自行关闭');`);
         await driver.sleep(8 *1000);
     } finally {
         await driver.sleep(2 *1000);

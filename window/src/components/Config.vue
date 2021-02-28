@@ -5,7 +5,7 @@
         <Button @click="delTableClick" type="primary">删除</Button>
 
         <Select v-model="platform">
-            <Option v-for="item in platforms" :value="item.key">{{item.name}}</Option>
+            <Option v-for="item in platforms" :value="item.key" :key="item.key">{{item.name}}</Option>
         </Select>
         <Input v-model="account">
             <span slot="prepend">账号</span>
@@ -17,6 +17,7 @@
 
         <CellGroup>
             <Cell v-for="(item,idx) in accountShows" :title="item.account"
+            :key="idx"
                   :label="item.pwd">
                 <Button @click="delAccountClick(item)"
                         type="error"
