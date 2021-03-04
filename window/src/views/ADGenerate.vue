@@ -213,7 +213,7 @@ export default {
           .replace(/adID/g, obj.placement_id)
           .replace(/appID/g, obj.app_id);
         if (this.tianChongAction === "add") {
-          adObj.code = adObj.code + "\n\n\n" + code;
+          adObj.code = adObj.code + "\n\n\n\n\n" + code;
           adObj.intro = adObj.intro + "\n" + obj.placement_id;
         } else {
           adObj.code = code;
